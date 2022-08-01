@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Product } from 'src/products/product.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserRole } from './user-role.enum';
 
 @Entity()
@@ -17,4 +18,8 @@ export class User {
 
   @Column({ nullable: false })
   role: UserRole;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  @OneToMany((_type) => Product, (product) => product.seller)
+  products: Product[];
 }
