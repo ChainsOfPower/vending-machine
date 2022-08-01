@@ -100,12 +100,12 @@ export class UsersService {
   }
 
   private toReadDto(user: User): ReadUserDto {
-    return {
-      id: user.id,
-      deposit: user.deposit,
-      password: user.password,
-      role: user.role,
-      username: user.username,
-    };
+    return new ReadUserDto(
+      user.id,
+      user.username,
+      user.password,
+      user.deposit,
+      user.role,
+    );
   }
 }
