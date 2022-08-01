@@ -18,32 +18,18 @@ export class UsersService {
     private hashingService: HashingService,
   ) {}
 
-  async getById(id: number): Promise<ReadUserDto> {
-    const user = await this.getEntityById(id);
-
-    return {
-      id: user.id,
-      username: user.username,
-      password: user.password,
-      deposit: user.deposit,
-      role: user.role,
-    };
-  }
-
   async getByUsername(username: string): Promise<ReadUserDto> {
     const user = await this.usersRepository.findOneBy({ username });
 
-    return {
-      id: user.id,
-      username: user.username,
-      password: user.password,
-      deposit: user.deposit,
-      role: user.role,
-    };
+    if (user == null) {
+      return null;
+    }
+
+    return this.toReadDto(user);
   }
 
   async delete(id: number): Promise<void> {
-    const user = await this.getEntityById(id);
+    const user = await this.validateAndGetEntity(id);
     await this.usersRepository.remove(user);
   }
 
@@ -65,7 +51,7 @@ export class UsersService {
   ): Promise<ReadUserDto> {
     await this.validateUsernameNotExists(userId, updateUserDto.username);
 
-    const userToUpdate = await this.getEntityById(userId);
+    const userToUpdate = await this.validateAndGetEntity(userId);
 
     userToUpdate.username = updateUserDto.username;
     userToUpdate.password = await this.hashingService.hash(
@@ -78,7 +64,7 @@ export class UsersService {
   }
 
   async deposit(userId: number, amount: number): Promise<ReadUserDto> {
-    const user = await this.getEntityById(userId);
+    const user = await this.validateAndGetEntity(userId);
     user.deposit += amount;
     this.usersRepository.save(user);
 
@@ -103,7 +89,7 @@ export class UsersService {
     }
   }
 
-  private async getEntityById(id: number): Promise<User> {
+  private async validateAndGetEntity(id: number): Promise<User> {
     const user = await this.usersRepository.findOneBy({ id });
 
     if (user == null) {
