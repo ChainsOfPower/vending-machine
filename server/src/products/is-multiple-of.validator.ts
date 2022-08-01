@@ -1,8 +1,4 @@
-import {
-  registerDecorator,
-  ValidationOptions,
-  ValidationArguments,
-} from 'class-validator';
+import { registerDecorator, ValidationOptions } from 'class-validator';
 
 export function IsMultipleOf(
   property: number,
@@ -18,7 +14,7 @@ export function IsMultipleOf(
         message: `${propertyName} must be multiple of ${property}`,
       },
       validator: {
-        validate(value: any, args: ValidationArguments) {
+        validate(value: any) {
           return typeof value === 'number' && value % property === 0;
         },
       },
