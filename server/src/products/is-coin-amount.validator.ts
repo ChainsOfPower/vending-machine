@@ -1,4 +1,5 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
+import { AVAILABLE_COINS_DESCENDING } from './vending-machine.service';
 
 export function IsCoinAmount(validationOptions?: ValidationOptions) {
   return function (object: unknown, propertyName: string) {
@@ -8,13 +9,13 @@ export function IsCoinAmount(validationOptions?: ValidationOptions) {
       propertyName: propertyName,
       constraints: [],
       options: validationOptions || {
-        message: `${propertyName} must be one of [5, 10, 20, 50, 100]`,
+        message: `${propertyName} must be one of [${AVAILABLE_COINS_DESCENDING}]`,
       },
       validator: {
         validate(value: any) {
           return (
             typeof value === 'number' &&
-            [5, 10, 20, 50, 100].some((v) => v == value)
+            AVAILABLE_COINS_DESCENDING.some((v) => v == value)
           );
         },
       },

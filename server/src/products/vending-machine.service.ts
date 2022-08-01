@@ -13,11 +13,10 @@ import { ChangeDto } from './dto/change.dto';
 import { DepositDto } from './dto/deposit.dto';
 import { Product } from './product.entity';
 
+export const AVAILABLE_COINS_DESCENDING = [100, 50, 20, 10, 5];
+
 @Injectable()
 export class VendingMachineService {
-  //TODO: extract to const export
-  readonly AVAILABLE_COINS_DESCENDING = [100, 50, 20, 10, 5];
-
   constructor(
     private usersService: UsersService,
     private dataSource: DataSource,
@@ -126,7 +125,7 @@ export class VendingMachineService {
 
   private toChangeDto(totalChange: number) {
     const change = [];
-    this.AVAILABLE_COINS_DESCENDING.forEach((coin) => {
+    AVAILABLE_COINS_DESCENDING.forEach((coin) => {
       while (totalChange >= coin) {
         change.push(coin);
         totalChange -= coin;
