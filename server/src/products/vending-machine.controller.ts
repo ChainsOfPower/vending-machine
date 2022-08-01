@@ -4,6 +4,7 @@ import { BuyerGuard } from 'src/auth/buyer.guard';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { JwtPayload } from 'src/auth/jwt-payload.interface';
 import { ReadUserDto } from 'src/users/dto/read-user.dto';
+import { ChangeDto } from './dto/change.dto';
 import { DepositDto } from './dto/deposit.dto';
 import { VendingMachineService } from './vending-machine.service';
 
@@ -18,5 +19,11 @@ export class VendingMachineController {
     @GetUser() user: JwtPayload,
   ): Promise<ReadUserDto> {
     return this.vendingMachineService.deposit(user.id, depositDto);
+  }
+
+  @Post('/reset')
+  @UseGuards(AuthGuard(), BuyerGuard)
+  reset(@GetUser() user: JwtPayload): Promise<ChangeDto> {
+    return this.vendingMachineService.reset(user.id);
   }
 }

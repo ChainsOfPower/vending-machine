@@ -8,12 +8,13 @@ export function IsCoinAmount(validationOptions?: ValidationOptions) {
       propertyName: propertyName,
       constraints: [],
       options: validationOptions || {
-        message: `${propertyName} must be one of [5, 10, 20, 50]`,
+        message: `${propertyName} must be one of [5, 10, 20, 50, 100]`,
       },
       validator: {
         validate(value: any) {
           return (
-            typeof value === 'number' && [5, 10, 20, 50].some((v) => v == value)
+            typeof value === 'number' &&
+            [5, 10, 20, 50, 100].some((v) => v == value)
           );
         },
       },

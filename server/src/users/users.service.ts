@@ -71,6 +71,14 @@ export class UsersService {
     return this.toReadDto(user);
   }
 
+  async reset(userId: number): Promise<number> {
+    const user = await this.validateAndGetEntity(userId);
+    const resetAmount = user.deposit;
+    user.deposit = 0;
+    await this.usersRepository.save(user);
+    return resetAmount;
+  }
+
   private async validateUsernameNotExists(
     updatingUserId: number,
     username: string,
