@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -42,5 +43,11 @@ export class ProductsController {
     @GetUser() user: JwtPayload,
   ): Promise<ReadProductDto> {
     return this.productsService.updateProduct(user.id, updateProductDto);
+  }
+
+  @Delete('/:id')
+  @UseGuards(AuthGuard(), SellerGuard)
+  delete(@Param('id') id: number, @GetUser() user: JwtPayload): Promise<void> {
+    return this.productsService.deleteProduct(user.id, id);
   }
 }

@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { ReadUserDto } from 'src/users/dto/read-user.dto';
+import { UpdateUserCredentialsDto } from 'src/users/dto/update-user-credentials.dto';
 import { HashingService } from 'src/users/hashing.service';
 import { UsersService } from 'src/users/users.service';
 import { AuthCredentialsDto } from './dto/auth.credentials.dto';
@@ -41,5 +42,15 @@ export class AuthService {
       return { accessToken };
     }
     throw new UnauthorizedException('Incorrect username or password');
+  }
+
+  async updateCredentials(
+    loggedInUserId: number,
+    credentials: UpdateUserCredentialsDto,
+  ): Promise<ReadUserDto> {
+    return await this.usersService.updateCredentials(
+      loggedInUserId,
+      credentials,
+    );
   }
 }

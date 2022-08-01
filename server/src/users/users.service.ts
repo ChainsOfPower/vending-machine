@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserCredentialsDto } from './dto/update-user-credentials.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,7 +14,7 @@ import { HashingService } from './hashing.service';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User) private usersRepositort: Repository<User>,
+    @InjectRepository(User) private usersRepository: Repository<User>,
     private hashingService: HashingService,
   ) {}
 
@@ -31,7 +31,7 @@ export class UsersService {
   }
 
   async getByUsername(username: string): Promise<ReadUserDto> {
-    const user = await this.usersRepositort.findOneBy({ username });
+    const user = await this.usersRepository.findOneBy({ username });
 
     return {
       id: user.id,
@@ -44,7 +44,7 @@ export class UsersService {
 
   async delete(id: number): Promise<void> {
     const user = await this.getEntityById(id);
-    await this.usersRepositort.remove(user);
+    await this.usersRepository.remove(user);
   }
 
   async create(createUserDto: CreateUserDto): Promise<ReadUserDto> {
@@ -54,7 +54,7 @@ export class UsersService {
     user.password = await this.hashingService.hash(createUserDto.plainPassword);
     user.deposit = 0;
     user.role = createUserDto.role;
-    await this.usersRepositort.save(user);
+    await this.usersRepository.save(user);
 
     return {
       id: user.id,
@@ -65,21 +65,28 @@ export class UsersService {
     };
   }
 
-  async update(
+  async updateCredentials(
     userId: number,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UpdateUserDto> {
+    updateUserDto: UpdateUserCredentialsDto,
+  ): Promise<ReadUserDto> {
     await this.validateUsernameNotExists(userId, updateUserDto.username);
 
     const userToUpdate = await this.getEntityById(userId);
 
+    userToUpdate.username = updateUserDto.username;
     userToUpdate.password = await this.hashingService.hash(
       updateUserDto.plainPassword,
     );
 
-    await this.usersRepositort.save(userToUpdate);
+    await this.usersRepository.save(userToUpdate);
 
-    return updateUserDto;
+    return {
+      id: userToUpdate.id,
+      deposit: userToUpdate.deposit,
+      password: userToUpdate.password,
+      role: userToUpdate.role,
+      username: userToUpdate.username,
+    };
   }
 
   private async validateUsernameNotExists(
@@ -87,7 +94,7 @@ export class UsersService {
     username: string,
   ) {
     const isUsernameTaken =
-      (await this.usersRepositort
+      (await this.usersRepository
         .createQueryBuilder('user')
         .andWhere('((cast(:id as int) IS NULL) OR user.id != :id)', {
           id: updatingUserId,
@@ -101,7 +108,7 @@ export class UsersService {
   }
 
   private async getEntityById(id: number): Promise<User> {
-    const user = await this.usersRepositort.findOneBy({ id });
+    const user = await this.usersRepository.findOneBy({ id });
 
     if (user == null) {
       throw new NotFoundException();
