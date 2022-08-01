@@ -45,4 +45,6 @@ export class AuthController {
   delete(@GetUser() user: JwtPayload) {
     return this.authService.deleteUser(user.id);
   }
+
+  //TODO: Login entity and logout option
 }
