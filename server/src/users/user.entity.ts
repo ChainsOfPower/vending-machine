@@ -1,5 +1,11 @@
 import { Product } from 'src/products/product.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  VersionColumn,
+} from 'typeorm';
 import { UserRole } from './user-role.enum';
 
 @Entity()
@@ -22,4 +28,7 @@ export class User {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @OneToMany((_type) => Product, (product) => product.seller)
   products: Product[];
+
+  @VersionColumn()
+  version: number;
 }

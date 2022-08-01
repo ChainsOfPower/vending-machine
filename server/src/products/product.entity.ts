@@ -1,5 +1,11 @@
 import { User } from 'src/users/user.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  VersionColumn,
+} from 'typeorm';
 
 @Entity()
 export class Product {
@@ -18,4 +24,7 @@ export class Product {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @ManyToOne((_type) => User, (user) => user.products)
   seller: User;
+
+  @VersionColumn()
+  version: number;
 }
