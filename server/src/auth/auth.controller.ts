@@ -1,4 +1,11 @@
-import { Body, Controller, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { ReadUserDto } from 'src/users/dto/read-user.dto';
@@ -17,7 +24,7 @@ export class AuthController {
     return this.authService.signUp(createUserDto);
   }
 
-  @Post('signin')
+  @Post('/signin')
   signIn(
     @Body() authCredentials: AuthCredentialsDto,
   ): Promise<{ accessToken: string }> {
@@ -31,5 +38,11 @@ export class AuthController {
     @GetUser() user: JwtPayload,
   ): Promise<ReadUserDto> {
     return this.authService.updateCredentials(user.id, updateCredentialsDto);
+  }
+
+  @Delete('/delete')
+  @UseGuards(AuthGuard())
+  delete(@GetUser() user: JwtPayload) {
+    return this.authService.deleteUser(user.id);
   }
 }

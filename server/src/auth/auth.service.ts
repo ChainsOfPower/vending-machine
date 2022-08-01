@@ -53,4 +53,8 @@ export class AuthService {
       credentials,
     );
   }
+
+  async deleteUser(loggedInUserId: number): Promise<void> {
+    return await this.usersService.delete(loggedInUserId);
+  }
 }
