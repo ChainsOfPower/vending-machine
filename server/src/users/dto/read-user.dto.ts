@@ -1,4 +1,4 @@
-import { Exclude, instanceToPlain } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 import { UserRole } from '../user-role.enum';
 
 export class ReadUserDto {
@@ -23,8 +23,4 @@ export class ReadUserDto {
 
   @Exclude()
   password: string;
-
-  toJson() {
-    return instanceToPlain(this);
-  }
 }
