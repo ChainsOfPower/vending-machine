@@ -9,19 +9,34 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { HashingService } from './hashing.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepositort: Repository<User>,
+    private hashingService: HashingService,
   ) {}
 
-  async get(id: number): Promise<ReadUserDto> {
+  async getById(id: number): Promise<ReadUserDto> {
     const user = await this.getEntityById(id);
 
     return {
       id: user.id,
       username: user.username,
+      password: user.password,
+      deposit: user.deposit,
+      role: user.role,
+    };
+  }
+
+  async getByUsername(username: string): Promise<ReadUserDto> {
+    const user = await this.usersRepositort.findOneBy({ username });
+
+    return {
+      id: user.id,
+      username: user.username,
+      password: user.password,
       deposit: user.deposit,
       role: user.role,
     };
@@ -36,7 +51,7 @@ export class UsersService {
     await this.validateUsernameNotExists(null, createUserDto.username);
     const user = new User();
     user.username = createUserDto.username;
-    user.password = createUserDto.password;
+    user.password = await this.hashingService.hash(createUserDto.plainPassword);
     user.deposit = 0;
     user.role = createUserDto.role;
     await this.usersRepositort.save(user);
@@ -44,6 +59,7 @@ export class UsersService {
     return {
       id: user.id,
       username: user.username,
+      password: user.password,
       deposit: user.deposit,
       role: user.role,
     };
@@ -57,7 +73,10 @@ export class UsersService {
 
     const userToUpdate = await this.getEntityById(userId);
 
-    userToUpdate.password = updateUserDto.password;
+    userToUpdate.password = await this.hashingService.hash(
+      updateUserDto.plainPassword,
+    );
+
     await this.usersRepositort.save(userToUpdate);
 
     return updateUserDto;
@@ -70,10 +89,10 @@ export class UsersService {
     const isUsernameTaken =
       (await this.usersRepositort
         .createQueryBuilder('user')
-        .where('user.id != :id AND user.username LIKE :username', {
+        .andWhere('((cast(:id as int) IS NULL) OR user.id != :id)', {
           id: updatingUserId,
-          username: username,
         })
+        .andWhere('user.username = :username', { username })
         .getCount()) > 0;
 
     if (isUsernameTaken) {
