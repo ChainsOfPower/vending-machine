@@ -35,7 +35,7 @@ export class ProductsService {
   }
 
   async getProduct(id: number): Promise<ReadProductDto> {
-    const product = await this.getEntity(id);
+    const product = await this.validateAndGetEntity(id);
 
     return {
       id: product.id,
@@ -49,7 +49,10 @@ export class ProductsService {
     sellerId: number,
     updateProductDto: UpdateProductDto,
   ): Promise<ReadProductDto> {
-    const product = await this.getEntity(sellerId, updateProductDto.id);
+    const product = await this.validateAndGetEntity(
+      sellerId,
+      updateProductDto.id,
+    );
 
     return {
       id: product.id,
@@ -60,11 +63,11 @@ export class ProductsService {
   }
 
   async deleteProduct(sellerId: number, productId: number): Promise<void> {
-    const product = await this.getEntity(sellerId, productId);
+    const product = await this.validateAndGetEntity(sellerId, productId);
     await this.productsRepository.remove(product);
   }
 
-  private async getEntity(
+  private async validateAndGetEntity(
     productId: number,
     sellerId?: number,
   ): Promise<Product> {
