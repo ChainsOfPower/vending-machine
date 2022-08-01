@@ -6,7 +6,7 @@ import {
 import { ReadUserDto } from 'src/users/dto/read-user.dto';
 import { User } from 'src/users/user.entity';
 import { UsersService } from 'src/users/users.service';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import { BuyProductResponseDto } from './dto/buy-product-response.dto';
 import { BuyProductDto } from './dto/buy-product.dto';
 import { ChangeDto } from './dto/change.dto';
@@ -38,27 +38,20 @@ export class VendingMachineService {
   ): Promise<BuyProductResponseDto> {
     try {
       // eslint-disable-next-line no-var
-      var queryRunner = this.dataSource.createQueryRunner();
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
+      var queryRunner = await this.initTransaction();
 
-      const product = await queryRunner.manager
-        .getRepository(Product)
-        .findOneBy({ id: buyProductDto.productId });
-
-      if (product == null) {
-        throw new NotFoundException('Product not found');
-      }
+      const product = await this.getAndValidateProduct(
+        queryRunner,
+        buyProductDto,
+      );
 
       if (buyProductDto.amount > product.amountAvailable) {
         throw new BadRequestException('Unavailable product amount');
       }
 
-      const user = await queryRunner.manager
-        .getRepository(User)
-        .findOneBy({ id: buyerId });
-
+      const user = await this.getAndValidateUser(queryRunner, buyerId);
       const totalCost = product.cost * buyProductDto.amount;
+
       if (totalCost > user.deposit) {
         throw new BadRequestException('Not enough money to make this purchase');
       }
@@ -67,10 +60,7 @@ export class VendingMachineService {
       const changeDto = this.toChangeDto(user.deposit - totalCost);
       user.deposit = 0;
 
-      await queryRunner.manager.save(user);
-      await queryRunner.manager.save(product);
-
-      await queryRunner.commitTransaction();
+      await this.commitTransaction(queryRunner, user, product);
 
       return new BuyProductResponseDto(
         totalCost,
@@ -88,6 +78,50 @@ export class VendingMachineService {
     } finally {
       await queryRunner?.release();
     }
+  }
+
+  private async initTransaction() {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    return queryRunner;
+  }
+
+  private async getAndValidateProduct(
+    queryRunner: QueryRunner,
+    buyProductDto: BuyProductDto,
+  ) {
+    const product = await queryRunner.manager
+      .getRepository(Product)
+      .findOneBy({ id: buyProductDto.productId });
+
+    if (product == null) {
+      throw new NotFoundException('Product not found');
+    }
+    return product;
+  }
+
+  private async getAndValidateUser(queryRunner: QueryRunner, buyerId: number) {
+    const user = await queryRunner.manager
+      .getRepository(User)
+      .findOneBy({ id: buyerId });
+
+    if (user == null) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  private async commitTransaction(
+    queryRunner: QueryRunner,
+    user: User,
+    product: Product,
+  ) {
+    await queryRunner.manager.save(user);
+    await queryRunner.manager.save(product);
+
+    await queryRunner.commitTransaction();
   }
 
   private toChangeDto(totalChange: number) {
