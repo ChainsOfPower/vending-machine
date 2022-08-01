@@ -1,10 +1,10 @@
 import { Breadcrumb, Layout, Menu } from 'antd';
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   Link
 } from "react-router-dom";
+import LoginPage from './pages/LoginPage';
 
 const { Header, Content, Footer } = Layout;
 
@@ -39,7 +39,7 @@ const AppLayout: React.FC = () => (
             <Route path='/'>
               Home content
             </Route>
-            <Route path='login'>
+            <Route path='login' element={<LoginPage/>}>
               Log In content
             </Route>
           </Routes>
