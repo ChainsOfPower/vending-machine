@@ -23,10 +23,4 @@ export class AuthController {
   ): Promise<{ accessToken: string }> {
     return this.authService.signIn(authCredentials);
   }
-
-  @Post('test')
-  @UseGuards(AuthGuard(), BuyerGuard)
-  test(@GetUser() user: JwtPayload) {
-    return this.authService.test(user);
-  }
 }

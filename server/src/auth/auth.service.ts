@@ -41,8 +41,4 @@ export class AuthService {
     }
     throw new UnauthorizedException('Incorrect username or password');
   }
-
-  test(user: JwtPayload): void {
-    console.log(user);
-  }
 }
