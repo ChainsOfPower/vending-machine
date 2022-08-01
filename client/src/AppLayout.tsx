@@ -5,6 +5,7 @@ import {
   Link
 } from "react-router-dom";
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 
 const { Header, Content, Footer } = Layout;
 
@@ -26,6 +27,11 @@ const AppLayout: React.FC = () => (
                 <span>Log In</span>
               </Link>
             </Menu.Item>
+            <Menu.Item key='3'>
+              <Link to='/register'>
+                <span>Register</span>
+              </Link>
+            </Menu.Item>
         </Menu>
     </Header>
       <Content style={{ padding: '0 50px' }}>
@@ -36,12 +42,9 @@ const AppLayout: React.FC = () => (
         </Breadcrumb>
         <div className='site-layout-content'>
           <Routes>
-            <Route path='/'>
-              Home content
-            </Route>
-            <Route path='login' element={<LoginPage/>}>
-              Log In content
-            </Route>
+            <Route path='/'/>
+            <Route path='login' element={<LoginPage/>}/>
+            <Route path='register' element={<RegisterPage/>}/>
           </Routes>
         </div>
       </Content>
