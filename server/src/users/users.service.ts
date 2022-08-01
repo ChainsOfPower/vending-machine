@@ -56,13 +56,7 @@ export class UsersService {
     user.role = createUserDto.role;
     await this.usersRepository.save(user);
 
-    return {
-      id: user.id,
-      username: user.username,
-      password: user.password,
-      deposit: user.deposit,
-      role: user.role,
-    };
+    return this.toReadDto(user);
   }
 
   async updateCredentials(
@@ -80,13 +74,15 @@ export class UsersService {
 
     await this.usersRepository.save(userToUpdate);
 
-    return {
-      id: userToUpdate.id,
-      deposit: userToUpdate.deposit,
-      password: userToUpdate.password,
-      role: userToUpdate.role,
-      username: userToUpdate.username,
-    };
+    return this.toReadDto(userToUpdate);
+  }
+
+  async deposit(userId: number, amount: number): Promise<ReadUserDto> {
+    const user = await this.getEntityById(userId);
+    user.deposit += amount;
+    this.usersRepository.save(user);
+
+    return this.toReadDto(user);
   }
 
   private async validateUsernameNotExists(
@@ -115,5 +111,15 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  private toReadDto(user: User): ReadUserDto {
+    return {
+      id: user.id,
+      deposit: user.deposit,
+      password: user.password,
+      role: user.role,
+      username: user.username,
+    };
   }
 }
