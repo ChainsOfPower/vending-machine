@@ -10,20 +10,16 @@ export function IsMultipleOf(
 ) {
   return function (object: unknown, propertyName: string) {
     registerDecorator({
-      name: 'isLongerThan',
+      name: 'isMultipleOf',
       target: object.constructor,
       propertyName: propertyName,
       constraints: [property],
-      options: validationOptions,
+      options: validationOptions || {
+        message: `${propertyName} must be multiple of ${property}`,
+      },
       validator: {
         validate(value: any, args: ValidationArguments) {
-          const [relatedPropertyName] = args.constraints;
-          const relatedValue = (args.object as any)[relatedPropertyName];
-          return (
-            typeof value === 'number' &&
-            typeof relatedValue === 'number' &&
-            value % relatedValue === 0
-          );
+          return typeof value === 'number' && value % property === 0;
         },
       },
     });

@@ -24,7 +24,7 @@ export class ProductsService {
     product.cost = createProductDto.cost;
     product.productName = createProductDto.productName;
     product.seller = seller;
-    await this.productsRepository.save(seller);
+    await this.productsRepository.save(product);
 
     return {
       id: product.id,
