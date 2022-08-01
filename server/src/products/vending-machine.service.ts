@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ReadUserDto } from 'src/users/dto/read-user.dto';
 import { UsersService } from 'src/users/users.service';
+import { BuyProductDto } from './dto/buy-product.dto';
 import { ChangeDto } from './dto/change.dto';
 import { DepositDto } from './dto/deposit.dto';
 
@@ -27,6 +28,15 @@ export class VendingMachineService {
     });
 
     return new ChangeDto(change);
+  }
+
+  async buy(buyerId: number, buyProductDto: BuyProductDto) {
+    //transaction steps:
+    //1. get product and calculate total
+    //2. get user and check if user has enough money, if not rollback and throw bad request
+    //3. update product to reduce available product count -> if not enough products, throw bad request
+    //4. reset user deposit and calculate and return change
+    return null;
   }
 
   //TODO: buy(productId: number, amount: number)
