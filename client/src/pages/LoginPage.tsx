@@ -1,12 +1,39 @@
-import { Button, Form, Input, PageHeader } from "antd";
+import { Button, Form, Input, notification, PageHeader } from "antd";
+import useAxios from "axios-hooks";
+import { useContext } from "react";
+import AuthContext from "../store/auth-context";
+
+interface FormValues {
+  username: string;
+  plainPassword: string;
+}
 
 const LoginPage: React.FC = () => {
-  const onFinish = (values: any) => {
-    console.log("Success:", values);
-  };
+  const authCtx = useContext(AuthContext);
 
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("Failed:", errorInfo);
+  const [{ loading }, execute] = useAxios<{ accessToken: string }>(
+    { url: "http://localhost:3001/auth/signin", method: "POST" },
+    { manual: true }
+  );
+
+  const onFinish = (values: FormValues) => {
+    execute({ data: values })
+      .then((response) => {
+        notification.success({
+          message: "Signed in successfuly"
+        })
+        authCtx.logIn(response.data.accessToken);
+        console.log("THIS IS TOKEN", response.data.accessToken);
+      })
+      .catch((error) => {
+        const errorMessage = error?.response?.data?.message;
+        errorMessage &&
+          notification.error({
+            message: "Signin failed",
+            description: errorMessage,
+          });
+        console.log("THIS IS LOGIN ERROR", error);
+      });
   };
 
   return (
@@ -16,10 +43,9 @@ const LoginPage: React.FC = () => {
         name="basic"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
-        initialValues={{ remember: true }}
         onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
         autoComplete="off"
+        disabled={loading}
       >
         <Form.Item
           label="Username"
@@ -31,7 +57,7 @@ const LoginPage: React.FC = () => {
 
         <Form.Item
           label="Password"
-          name="password"
+          name="plainPassword"
           rules={[{ required: true, message: "Please input your password!" }]}
         >
           <Input.Password />

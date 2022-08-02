@@ -1,11 +1,7 @@
 import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
 import AppLayout from "./AppLayout";
 
-const App: React.FC = () => (
-  <Router>
-    <AppLayout />
-  </Router>
-);
+// TODO: move app layout to this component
+const App: React.FC = () => <AppLayout />;
 
 export default App;
