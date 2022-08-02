@@ -1,0 +1,1 @@
+Vending machine app written in nestJS and React with TS
