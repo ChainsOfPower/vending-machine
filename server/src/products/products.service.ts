@@ -13,17 +13,27 @@ export class ProductsService {
     @InjectRepository(Product) private productsRepository: Repository<Product>,
   ) {}
 
+  async getAll(): Promise<ReadProductDto[]> {
+    const products = await this.productsRepository.find();
+
+    return products.map(
+      (p) => new ReadProductDto(p.id, p.amountAvailable, p.cost, p.productName),
+    );
+  }
+
   async createProduct(
     sellerId: number,
     createProductDto: CreateProductDto,
   ): Promise<ReadProductDto> {
     const seller = new User();
     seller.id = sellerId;
+
     const product = new Product();
     product.amountAvailable = createProductDto.amountAvailable;
     product.cost = createProductDto.cost;
     product.productName = createProductDto.productName;
     product.seller = seller;
+
     await this.productsRepository.save(product);
 
     return {

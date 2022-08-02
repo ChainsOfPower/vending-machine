@@ -1,6 +1,8 @@
 export class ReadProductDto {
-  id: number;
-  amountAvailable: number;
-  cost: number;
-  productName: string;
+  constructor(
+    public id: number,
+    public amountAvailable: number,
+    public cost: number,
+    public productName: string,
+  ) {}
 }

@@ -21,7 +21,11 @@ import { ProductsService } from './products.service';
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
-  //TODO: get paginated products
+  @Get('/')
+  // @UseGuards(AuthGuard())
+  getAll(): Promise<ReadProductDto[]> {
+    return this.productsService.getAll();
+  }
 
   @Get('/:id')
   @UseGuards(AuthGuard())
