@@ -1,7 +1,7 @@
 import { Layout, Menu } from "antd";
 import { Routes, Route, Link } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
+import SignupPage from "./pages/SignupPage";
 
 const { Header, Content, Footer } = Layout;
 
@@ -9,6 +9,7 @@ const AppLayout: React.FC = () => (
   <Layout className="layout" style={{ height: "100vh" }}>
     <Header>
       <div className="logo" />
+      {/* TODO: fix key */}
       <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["1"]}>
         <Menu.Item key="1">
           <Link to="/">
@@ -21,7 +22,7 @@ const AppLayout: React.FC = () => (
           </Link>
         </Menu.Item>
         <Menu.Item key="3">
-          <Link to="/register">
+          <Link to="/signup">
             <span>Register</span>
           </Link>
         </Menu.Item>
@@ -32,7 +33,7 @@ const AppLayout: React.FC = () => (
         <Routes>
           <Route path="/" />
           <Route path="login" element={<LoginPage />} />
-          <Route path="register" element={<RegisterPage />} />
+          <Route path="signup" element={<SignupPage />} />
         </Routes>
       </div>
     </Content>

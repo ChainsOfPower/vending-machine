@@ -8,7 +8,7 @@ interface FormValues {
   role: string;
 }
 
-const RegisterPage: React.FC = () => {
+const SignupPage: React.FC = () => {
   const [{ loading }, execute] = useAxios(
     { url: "http://localhost:3001/auth/signup", method: "POST" },
     { manual: true }
@@ -19,13 +19,16 @@ const RegisterPage: React.FC = () => {
   const onFinish = (values: FormValues) => {
     execute({ data: values })
       .then(() => {
+        notification.success({
+          message: "Signed up successfuly"
+        })
         navigate("/login");
       })
       .catch((error) => {
         const errorMessage = error?.response?.data?.message;
         errorMessage &&
           notification.error({
-            message: "Registration failed",
+            message: "Signup failed",
             description: errorMessage,
           });
       });
@@ -33,13 +36,12 @@ const RegisterPage: React.FC = () => {
 
   return (
     <>
-      <PageHeader className="site-page-header" title="Register" />
+      <PageHeader className="site-page-header" title="Sign Up" />
 
       <Form
-        name="basic"
+        name="signup"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
-        initialValues={{ remember: true }}
         onFinish={onFinish}
         autoComplete="off"
         disabled={loading}
@@ -83,7 +85,7 @@ const RegisterPage: React.FC = () => {
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Button type="primary" htmlType="submit">
-            Submit
+            Sign Up
           </Button>
         </Form.Item>
       </Form>
@@ -91,4 +93,4 @@ const RegisterPage: React.FC = () => {
   );
 };
 
-export default RegisterPage;
+export default SignupPage;
