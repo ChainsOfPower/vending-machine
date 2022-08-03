@@ -1,7 +1,7 @@
 import { Layout, Menu } from "antd";
 import { useContext } from "react";
 import AuthContext from "../store/auth-context";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const { Header } = Layout;
 
@@ -9,11 +9,12 @@ const LayoutHeader: React.FC = () => {
   const authCtx = useContext(AuthContext);
   const isLoggedIn = authCtx.isLoggedIn;
 
+  const location = useLocation();
+
   return (
     <Header>
       <div className="logo" />
-      {/* TODO: fix key with router info */}
-      <Menu theme="dark" mode="horizontal" defaultSelectedKeys={["1"]}>
+      <Menu theme="dark" mode="horizontal" selectedKeys={[location.pathname]}>
         
         {isLoggedIn && (
           <>

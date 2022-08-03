@@ -18,8 +18,7 @@ interface User {
 }
 
 const BuyProductPage: React.FC = () => {
-
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<number>(1);
 
   let { productId } = useParams();
 
@@ -32,6 +31,11 @@ const BuyProductPage: React.FC = () => {
     { loading: isProfileLoading, data: profileData, error: profileError },
     refetchProfile,
   ] = useAxios<User>("/auth/profile");
+
+  const [{ loading: isBuyLoading }, executeBuy] = useAxios<unknown>(
+    { url: "/vending-machine/buy", method: "POST" },
+    { manual: true }
+  );
 
   if (isProductLoading || isProfileLoading) {
     return <p>Loading...</p>;
@@ -51,7 +55,14 @@ const BuyProductPage: React.FC = () => {
   }
 
   const onFinish = (values: any) => {
-    return console.log(values);
+    console.log(values);
+    executeBuy({ data: values })
+      .then((data) => {
+
+      })
+      .catch((error) => {
+
+      });
   };
 
   return (
@@ -76,8 +87,13 @@ const BuyProductPage: React.FC = () => {
         wrapperCol={{ span: 16 }}
         onFinish={onFinish}
         autoComplete="off"
-        disabled={isProductLoading}
+        disabled={isBuyLoading}
+        initialValues={{ amount: 1, productId }}
       >
+        <Form.Item hidden name="productId">
+          <Input />
+        </Form.Item>
+
         <Form.Item
           label="Amount"
           name="amount"
@@ -88,7 +104,11 @@ const BuyProductPage: React.FC = () => {
             },
           ]}
         >
-          <Input type="number" min={1} onChange={(event) => setAmount(event.target.valueAsNumber)}/>
+          <Input
+            type="number"
+            min={1}
+            onChange={(event) => setAmount(event.target.valueAsNumber)}
+          />
         </Form.Item>
 
         <Form.Item label="Total cost">
