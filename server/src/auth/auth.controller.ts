@@ -27,7 +27,7 @@ export class AuthController {
   @Get('/profile')
   @UseGuards(AuthGuard())
   getProfile(@GetUser() user: JwtPayload) {
-    return this.usersService.getByUsername(user.username);
+    return this.usersService.getById(user.id);
   }
 
   @Post('/signup')

@@ -18,6 +18,16 @@ export class UsersService {
     private hashingService: HashingService,
   ) {}
 
+  async getById(id: number): Promise<ReadUserDto> {
+    const user = await this.usersRepository.findOneBy({ id });
+
+    if (user == null) {
+      return null;
+    }
+
+    return this.toReadDto(user);
+  }
+
   async getByUsername(username: string): Promise<ReadUserDto> {
     const user = await this.usersRepository.findOneBy({ username });
 

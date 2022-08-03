@@ -4,7 +4,6 @@ import jwt from "jwt-decode";
 
 export type JwtPayload = {
   id: number;
-  username: string;
   role: UserRole;
 }
 
