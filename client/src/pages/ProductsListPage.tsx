@@ -1,5 +1,10 @@
-import { Button, Table,  } from "antd";
+import { Button, Space, Table,  } from "antd";
 import useAxios from "axios-hooks";
+import { Link } from "react-router-dom";
+
+interface Product {
+  id: number
+}
 
 const columns = [
   {
@@ -7,10 +12,29 @@ const columns = [
     dataIndex: "productName",
     key: "productName",
   },
+  {
+    title: "Amount Available",
+    dataIndex: "amountAvailable",
+    key: "amountAvailable"
+  },
+  {
+    title: "Cost",
+    dataIndex: "cost",
+    key: "cost"
+  },
+  {
+    title: "",
+    key: "buy",
+    render: (_: any, product: Product) => (
+      <Space size="middle"> 
+        <Link to={`/buy-product/${product.id}`}>Buy</Link>
+      </Space>
+    )
+  }
 ];
 
 const ProductsListPage: React.FC = () => {
-  const [{ data, loading, error }, refetch] = useAxios<any[]>(
+  const [{ data, loading, error }, refetch] = useAxios<Product[]>(
     "/products"
   );
 

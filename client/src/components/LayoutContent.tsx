@@ -1,6 +1,7 @@
 import { Content } from "antd/lib/layout/layout";
 import { useContext } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import BuyProductPage from "../pages/BuyProductPage";
 import LoginPage from "../pages/LoginPage";
 import ProductsListPage from "../pages/ProductsListPage";
 import SignupPage from "../pages/SignupPage";
@@ -15,7 +16,10 @@ const LayoutContent: React.FC = () => {
       <div className="site-layout-content">
         <Routes>
           {isLoggedIn && (
-            <Route path="/products" element={<ProductsListPage />} />
+            <>
+              <Route path="/products" element={<ProductsListPage />} />
+              <Route path="/buy-product/:productId" element={<BuyProductPage/>} />
+            </>
           )}
           {!isLoggedIn && (
             <>
