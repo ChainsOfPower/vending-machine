@@ -1,7 +1,7 @@
 import { Button, Space, Table,  } from "antd";
 import useAxios from "axios-hooks";
 import { Link } from "react-router-dom";
-import LoadingError from "../components/LoadingError";
+import LoadingError from "../../components/LoadingError";
 
 interface Product {
   id: number

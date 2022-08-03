@@ -9,8 +9,8 @@ import {
 import useAxios from "axios-hooks";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { BuyProductResponse, Product, User } from "../api-types/api-types";
-import LoadingError from "../components/LoadingError";
+import { BuyProductResponse, Product, User } from "../../api-types/api-types";
+import LoadingError from "../../components/LoadingError";
 
 const BuyProductPage: React.FC = () => {
   const { productId } = useParams();

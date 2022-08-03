@@ -1,18 +1,29 @@
 import React, { useState } from "react";
+import { UserRole } from "../api-types/api-types";
+import jwt from "jwt-decode";
+
+export type JwtPayload = {
+  id: number;
+  username: string;
+  role: UserRole;
+}
 
 export type AuthContextType = {
-  //TODO: replace accessToken with JwtPayload
-  accessToken: string | null;
+  jwtPayload: JwtPayload | null;
   isLoggedIn: boolean;
   logIn: (token: string) => void;
   logOut: () => void;
+  isBuyer: boolean;
+  isSeller: boolean;
 };
 
 const AuthContext = React.createContext<AuthContextType>({
-  accessToken: "",
+  jwtPayload: null,
   isLoggedIn: false,
   logIn: (token: string) => {},
   logOut: () => {},
+  isBuyer: false,
+  isSeller: false,
 });
 
 interface Props {
@@ -21,25 +32,34 @@ interface Props {
 
 export const AuthContextProvider: React.FC<Props> = ({ children }) => {
   const initialToken = localStorage.getItem("token");
-  const [accessToken, setAccessToken] = useState<string | null>(initialToken);
 
-  const isUserLoggedIn = !!accessToken;
+  const initialJwtPayload = initialToken 
+    ? jwt<JwtPayload>(initialToken) 
+    : null;
+
+  const [jwtPayload, setJwtPayload] = useState<JwtPayload | null>(initialJwtPayload);
 
   const logInHanlder = (token: string) => {
-    setAccessToken(token);
+    setJwtPayload(jwt(token));
     localStorage.setItem("token", token);
   };
 
   const logOutHandler = () => {
-    setAccessToken("");
+    setJwtPayload(null);
     localStorage.removeItem("token");
   };
 
+  const isUserLoggedIn = !!jwtPayload;
+  const isBuyer = jwtPayload?.role === UserRole.BUYER;
+  const isSeller = jwtPayload?.role === UserRole.SELLER;
+
   const contextValue: AuthContextType = {
-    accessToken,
+    jwtPayload,
     isLoggedIn: isUserLoggedIn,
     logIn: logInHanlder,
     logOut: logOutHandler,
+    isBuyer,
+    isSeller
   };
 
   return (

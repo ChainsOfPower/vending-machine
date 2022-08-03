@@ -8,8 +8,8 @@ import {
 } from "antd";
 import useAxios from "axios-hooks";
 import { useEffect, useState } from "react";
-import { User } from "../api-types/api-types";
-import LoadingError from "../components/LoadingError";
+import { User } from "../../api-types/api-types";
+import LoadingError from "../../components/LoadingError";
 
 const DepositCoinsPage: React.FC = () => {
   const [user, setUser] = useState<User | undefined>();

@@ -1,13 +1,14 @@
 import { Layout, Menu } from "antd";
 import { useContext } from "react";
-import AuthContext from "../store/auth-context";
 import { Link, useLocation } from "react-router-dom";
+import AuthContext from "../../store/auth-context";
 
 const { Header } = Layout;
 
 const LayoutHeader: React.FC = () => {
   const authCtx = useContext(AuthContext);
   const isLoggedIn = authCtx.isLoggedIn;
+  const isBuyer = authCtx.isBuyer;
 
   const location = useLocation();
 
@@ -15,8 +16,7 @@ const LayoutHeader: React.FC = () => {
     <Header>
       <div className="logo" />
       <Menu theme="dark" mode="horizontal" selectedKeys={[location.pathname]}>
-        
-        {isLoggedIn && (
+        {isBuyer && (
           <>
             <Menu.Item key="/products">
               <Link to="/products">
@@ -28,11 +28,10 @@ const LayoutHeader: React.FC = () => {
                 <span>Deposit</span>
               </Link>
             </Menu.Item>
-            <Menu.Item key="/logout" onClick={() => authCtx.logOut()}>
-              <span>Log Out</span>
-            </Menu.Item>
           </>
         )}
+
+        {/* TODO seller routes */}
 
         {!isLoggedIn && (
           <>
@@ -47,6 +46,12 @@ const LayoutHeader: React.FC = () => {
               </Link>
             </Menu.Item>
           </>
+        )}
+
+        {isLoggedIn && (
+          <Menu.Item key="/logout" onClick={() => authCtx.logOut()}>
+            <span>Log Out</span>
+          </Menu.Item>
         )}
       </Menu>
     </Header>

@@ -1,7 +1,7 @@
 import { Button, Form, Input, notification, PageHeader } from "antd";
 import useAxios from "axios-hooks";
 import { useContext } from "react";
-import AuthContext from "../store/auth-context";
+import AuthContext from "../../store/auth-context";
 
 interface FormValues {
   username: string;

@@ -1,6 +1,6 @@
 import { Layout } from "antd";
-import LayoutContent from "./components/LayoutContent";
-import LayoutHeader from "./components/LayoutHeader";
+import LayoutContent from "./components/layout/LayoutContent";
+import LayoutHeader from "./components/layout/LayoutHeader";
 
 const {Footer } = Layout;
 
