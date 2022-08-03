@@ -12,7 +12,7 @@ const LoginPage: React.FC = () => {
   const authCtx = useContext(AuthContext);
 
   const [{ loading }, execute] = useAxios<{ accessToken: string }>(
-    { url: "/signin", method: "POST" },
+    { url: "/auth/signin", method: "POST" },
     { manual: true }
   );
 
@@ -38,7 +38,7 @@ const LoginPage: React.FC = () => {
     <>
       <PageHeader className="site-page-header" title="Log in" />
       <Form
-        name="basic"
+        name="login"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
         onFinish={onFinish}
