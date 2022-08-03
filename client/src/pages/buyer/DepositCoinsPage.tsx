@@ -83,7 +83,13 @@ const DepositCoinsPage: React.FC = () => {
 
   return (
     <>
-      <PageHeader>
+      <PageHeader
+        footer={
+          <Button type="ghost" onClick={handleReset} disabled={isResetLoading}>
+            Reset
+          </Button>
+        }
+      >
         <Descriptions column={1} title="Deposit coins">
           <Descriptions.Item label="Your deposit">
             {user?.deposit}
@@ -121,12 +127,6 @@ const DepositCoinsPage: React.FC = () => {
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Button type="primary" htmlType="submit">
             Deposit
-          </Button>
-        </Form.Item>
-
-        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button type="ghost" onClick={handleReset} disabled={isResetLoading}>
-            Reset
           </Button>
         </Form.Item>
       </Form>
