@@ -1,26 +1,22 @@
-import { Button, Descriptions, Form, Input, PageHeader } from "antd";
+import {
+  Button,
+  Descriptions,
+  Form,
+  Input,
+  notification,
+  PageHeader,
+} from "antd";
 import useAxios from "axios-hooks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-
-//TODO: extract to api types folder
-interface Product {
-  id: number;
-  productName: string;
-  amountAvailable: number;
-  cost: number;
-}
-
-interface User {
-  id: number;
-  username: string;
-  deposit: number;
-}
+import { BuyProductResponse, Product, User } from "../api-types/api-types";
+import LoadingError from "../components/LoadingError";
 
 const BuyProductPage: React.FC = () => {
+  const { productId } = useParams();
   const [amount, setAmount] = useState<number>(1);
-
-  let { productId } = useParams();
+  const [product, setProduct] = useState<Product>();
+  const [deposit, setDeposit] = useState<number>();
 
   const [
     { loading: isProductLoading, data: productData, error: productError },
@@ -32,52 +28,62 @@ const BuyProductPage: React.FC = () => {
     refetchProfile,
   ] = useAxios<User>("/auth/profile");
 
-  const [{ loading: isBuyLoading }, executeBuy] = useAxios<unknown>(
+  const [{ loading: isBuyLoading }, executeBuy] = useAxios<BuyProductResponse>(
     { url: "/vending-machine/buy", method: "POST" },
     { manual: true }
   );
+
+  useEffect(() => {
+    setProduct(productData);
+    setDeposit(profileData?.deposit);
+  }, [productData, profileData]);
+
+  const handleBuy = (values: any) => {
+    executeBuy({ data: values })
+      .then((response) => {
+        setDeposit(0);
+        setProduct(response.data.product);
+
+        const changeText = `Your coins change is ${response.data.change.coins.toString()}`;
+
+        notification.success({
+          message: "Purchase successful",
+          description: changeText,
+        });
+      })
+      .catch((error) => {
+        const errorMessage = error?.response?.data?.message;
+
+        notification.error({
+          message: "Purchase failed",
+          description: errorMessage,
+        });
+      });
+  };
 
   if (isProductLoading || isProfileLoading) {
     return <p>Loading...</p>;
   }
 
-  if (productError || profileError) {
-    return (
-      <div>
-        <div>Error loading data...</div>
-        <Button
-          onClick={() => Promise.all([refetchProduct(), refetchProfile()])}
-        >
-          Reload
-        </Button>
-      </div>
-    );
+  if (productError) {
+    return <LoadingError onRetry={refetchProduct} />;
   }
 
-  const onFinish = (values: any) => {
-    console.log(values);
-    executeBuy({ data: values })
-      .then((data) => {
-
-      })
-      .catch((error) => {
-
-      });
-  };
+  if (profileError) {
+    return <LoadingError onRetry={refetchProfile} />;
+  }
 
   return (
     <>
       <PageHeader className="site-page-header">
-        <Descriptions column={1} title={`Buy ${productData?.productName}`}>
+        <Descriptions column={1} title={`Buy ${product?.productName}`}>
           <Descriptions.Item label="Available amount">
-            {productData?.amountAvailable}
+            {product?.amountAvailable}
           </Descriptions.Item>
           <Descriptions.Item label="Cost per item">
-            {productData?.cost}
+            {product?.cost}
           </Descriptions.Item>
-          <Descriptions.Item label="Your deposit">
-            {profileData?.deposit}
-          </Descriptions.Item>
+          <Descriptions.Item label="Your deposit">{deposit}</Descriptions.Item>
         </Descriptions>
       </PageHeader>
 
@@ -85,7 +91,7 @@ const BuyProductPage: React.FC = () => {
         name="buy"
         labelCol={{ span: 8 }}
         wrapperCol={{ span: 16 }}
-        onFinish={onFinish}
+        onFinish={handleBuy}
         autoComplete="off"
         disabled={isBuyLoading}
         initialValues={{ amount: 1, productId }}

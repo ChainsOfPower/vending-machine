@@ -23,6 +23,11 @@ const LayoutHeader: React.FC = () => {
                 <span>Products</span>
               </Link>
             </Menu.Item>
+            <Menu.Item key="/deposit">
+              <Link to="/deposit">
+                <span>Deposit</span>
+              </Link>
+            </Menu.Item>
             <Menu.Item key="/logout" onClick={() => authCtx.logOut()}>
               <span>Log Out</span>
             </Menu.Item>

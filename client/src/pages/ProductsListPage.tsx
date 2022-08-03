@@ -1,6 +1,7 @@
 import { Button, Space, Table,  } from "antd";
 import useAxios from "axios-hooks";
 import { Link } from "react-router-dom";
+import LoadingError from "../components/LoadingError";
 
 interface Product {
   id: number
@@ -43,12 +44,7 @@ const ProductsListPage: React.FC = () => {
   }
 
   if (error) {
-    return (
-      <div>
-        <div>Error loading data...</div>
-        <Button onClick={() => refetch()}>Retry</Button>
-      </div>
-    );
+    return <LoadingError onRetry={refetch}/>
   }
 
   return <Table dataSource={data?.map(d => ({key: d.id, ...d}))} columns={columns} />;

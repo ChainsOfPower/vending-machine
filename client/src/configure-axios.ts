@@ -35,7 +35,7 @@ const configureAxios = () => {
     }
   );
   
-  configure({ axios: axiosInstance });
+  configure({ axios: axiosInstance, cache: null });
 };
 
 export default configureAxios;

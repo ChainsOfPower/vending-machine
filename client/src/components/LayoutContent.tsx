@@ -2,6 +2,7 @@ import { Content } from "antd/lib/layout/layout";
 import { useContext } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import BuyProductPage from "../pages/BuyProductPage";
+import DepositCoinsPage from "../pages/DepositCoinsPage";
 import LoginPage from "../pages/LoginPage";
 import ProductsListPage from "../pages/ProductsListPage";
 import SignupPage from "../pages/SignupPage";
@@ -19,6 +20,7 @@ const LayoutContent: React.FC = () => {
             <>
               <Route path="/products" element={<ProductsListPage />} />
               <Route path="/buy-product/:productId" element={<BuyProductPage/>} />
+              <Route path="/deposit" element={<DepositCoinsPage/>}/>
             </>
           )}
           {!isLoggedIn && (
