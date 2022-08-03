@@ -10,8 +10,8 @@ const columns = [
 ];
 
 const ProductsListPage: React.FC = () => {
-  const [{ data, loading, error }, refetch] = useAxios(
-    "http://localhost:3001/products/"
+  const [{ data, loading, error }, refetch] = useAxios<any[]>(
+    "/products"
   );
 
   if (loading) {
@@ -27,7 +27,7 @@ const ProductsListPage: React.FC = () => {
     );
   }
 
-  return <Table dataSource={data} columns={columns} />;
+  return <Table dataSource={data?.map(d => ({key: d.id, ...d}))} columns={columns} />;
 };
 
 export default ProductsListPage;

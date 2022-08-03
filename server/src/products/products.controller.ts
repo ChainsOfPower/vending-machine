@@ -22,7 +22,7 @@ export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
   @Get('/')
-  // @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard())
   getAll(): Promise<ReadProductDto[]> {
     return this.productsService.getAll();
   }

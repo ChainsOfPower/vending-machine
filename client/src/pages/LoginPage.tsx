@@ -12,7 +12,7 @@ const LoginPage: React.FC = () => {
   const authCtx = useContext(AuthContext);
 
   const [{ loading }, execute] = useAxios<{ accessToken: string }>(
-    { url: "http://localhost:3001/auth/signin", method: "POST" },
+    { url: "/signin", method: "POST" },
     { manual: true }
   );
 
@@ -23,7 +23,6 @@ const LoginPage: React.FC = () => {
           message: "Signed in successfuly"
         })
         authCtx.logIn(response.data.accessToken);
-        console.log("THIS IS TOKEN", response.data.accessToken);
       })
       .catch((error) => {
         const errorMessage = error?.response?.data?.message;
@@ -32,7 +31,6 @@ const LoginPage: React.FC = () => {
             message: "Signin failed",
             description: errorMessage,
           });
-        console.log("THIS IS LOGIN ERROR", error);
       });
   };
 
