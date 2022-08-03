@@ -1,9 +1,10 @@
-import { Button, Form, Input, notification, PageHeader } from "antd";
+import { notification, PageHeader } from "antd";
 import useAxios from "axios-hooks";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Product } from "../../api-types/api-types";
 import LoadingError from "../../components/LoadingError";
+import ProductForm from "../../components/ProductForm";
 
 const EditProductPage: React.FC = () => {
   const { productId } = useParams();
@@ -23,7 +24,7 @@ const EditProductPage: React.FC = () => {
     { manual: true }
   );
 
-  const handleEdit = (values: Product) => {
+  const handleSubmit = (values: Product) => {
     executeUpdate({ data: values })
       .then((response) => {
         setProductName(response.data.productName);
@@ -51,49 +52,10 @@ const EditProductPage: React.FC = () => {
         className="site-page-header"
         title={`Edit "${productName}"`}
       />
-      <Form
-        name="buy"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        onFinish={handleEdit}
-        autoComplete="off"
-        disabled={isUpdating}
-        initialValues={productData}
-      >
-        <Form.Item hidden name="id">
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Product name"
-          name="productName"
-          rules={[{ required: true }]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Amount available"
-          name="amountAvailable"
-          rules={[{ required: true, message: "Available amount is required" }]}
-        >
-          <Input type="number" min={0} />
-        </Form.Item>
-
-        <Form.Item
-          label="Cost"
-          name="cost"
-          rules={[{ required: true, message: "Cost is required" }]}
-        >
-          <Input type="number" min={1} />
-        </Form.Item>
-
-        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-          <Button type="primary" htmlType="submit">
-            Save
-          </Button>
-        </Form.Item>
-      </Form>
+      <ProductForm 
+        disabled={isUpdating} 
+        initialValues={productData} 
+        onSubmit={handleSubmit}/>
     </>
   );
 };

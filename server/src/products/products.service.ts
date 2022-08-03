@@ -78,6 +78,8 @@ export class ProductsService {
     product.amountAvailable = updateProductDto.amountAvailable;
     product.cost = updateProductDto.cost;
 
+    await this.productsRepository.save(product);
+
     return {
       id: product.id,
       amountAvailable: product.amountAvailable,
