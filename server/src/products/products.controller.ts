@@ -39,7 +39,7 @@ export class ProductsController {
     return this.productsService.getProduct(id);
   }
 
-  @Post('/create')
+  @Post()
   @UseGuards(AuthGuard(), SellerGuard)
   create(
     @Body() createProductDto: CreateProductDto,
@@ -48,7 +48,7 @@ export class ProductsController {
     return this.productsService.createProduct(user.id, createProductDto);
   }
 
-  @Put('/update')
+  @Put()
   @UseGuards(AuthGuard(), SellerGuard)
   update(
     @Body() updateProductDto: UpdateProductDto,

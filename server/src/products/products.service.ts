@@ -89,7 +89,7 @@ export class ProductsService {
   }
 
   async deleteProduct(sellerId: number, productId: number): Promise<void> {
-    const product = await this.validateAndGetEntity(sellerId, productId);
+    const product = await this.validateAndGetEntity(productId, sellerId);
     await this.productsRepository.remove(product);
   }
 
