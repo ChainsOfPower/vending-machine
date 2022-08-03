@@ -1,4 +1,5 @@
 import { Layout, Menu } from "antd";
+import SubMenu from "antd/lib/menu/SubMenu";
 import { useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import AuthContext from "../../store/auth-context";
@@ -44,7 +45,7 @@ const LayoutHeader: React.FC = () => {
 
         {!isLoggedIn && (
           <>
-            <Menu.Item key="/login">
+            <Menu.Item style={{ marginLeft: "auto" }} key="/login">
               <Link to="/login">
                 <span>Log In</span>
               </Link>
@@ -58,9 +59,16 @@ const LayoutHeader: React.FC = () => {
         )}
 
         {isLoggedIn && (
-          <Menu.Item key="/logout" onClick={() => authCtx.logOut()}>
-            <span>Log Out</span>
-          </Menu.Item>
+          <>
+            <Menu.Item key="/profile" style={{ marginLeft: "auto" }}>
+              <Link to="/profile">
+                <span>Profile</span>
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="/logout" onClick={() => authCtx.logOut()}>
+              <span>Log Out</span>
+            </Menu.Item>
+          </>
         )}
       </Menu>
     </Header>

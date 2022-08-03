@@ -15,7 +15,12 @@ export interface User {
 export enum UserRole {
   BUYER = 'BUYER',
   SELLER = 'SELLER',
-}
+};
+
+export interface AuthCredentials {
+  username?: string;
+  plainPassword?: string;
+};
 
 export interface BuyProductResponse {
   totalMoneySpent: number;

@@ -24,7 +24,7 @@ export class AuthController {
     private usersService: UsersService,
   ) {}
 
-  @Get('profile')
+  @Get('/profile')
   @UseGuards(AuthGuard())
   getProfile(@GetUser() user: JwtPayload) {
     return this.usersService.getByUsername(user.username);

@@ -10,6 +10,7 @@ import SignupPage from "../../pages/auth/SignupPage";
 import MyProductsPage from "../../pages/seller/MyProductsPage";
 import EditProductPage from "../../pages/seller/EditProductPage";
 import CreateProductPage from "../../pages/seller/CreateProductPage";
+import EditProfilePage from "../../pages/auth/EditProfilePage";
 
 const LayoutContent: React.FC = () => {
   const authCtx = useContext(AuthContext);
@@ -35,13 +36,12 @@ const LayoutContent: React.FC = () => {
           {isSeller && (
             <>
               <Route path="/products/mine" element={<MyProductsPage />} />
-              <Route
-                path="/product/:productId"
-                element={<EditProductPage />}
-              />
+              <Route path="/product/:productId" element={<EditProductPage />} />
               <Route path="/product/create" element={<CreateProductPage />} />
             </>
           )}
+
+          {isLoggedIn && <Route path="/profile" element={<EditProfilePage/>} />}
 
           {!isLoggedIn && (
             <>
