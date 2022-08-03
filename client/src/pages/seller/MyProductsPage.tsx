@@ -1,4 +1,4 @@
-import { Space, Table } from "antd";
+import { Button, Space, Table } from "antd";
 import useAxios from "axios-hooks";
 import { Link } from "react-router-dom";
 import { Product } from "../../api-types/api-types";
@@ -13,38 +13,49 @@ const columns = [
   {
     title: "Amount Available",
     dataIndex: "amountAvailable",
-    key: "amountAvailable"
+    key: "amountAvailable",
   },
   {
     title: "Cost",
     dataIndex: "cost",
-    key: "cost"
+    key: "cost",
   },
   {
     title: "",
     key: "edit",
     render: (_: any, product: Product) => (
-      <Space size="middle"> 
+      <Space size="middle">
         <Link to={`/product/edit/${product.id}`}>Edit</Link>
       </Space>
-    )
-  }
+    ),
+  },
 ];
 
 const MyProductsPage: React.FC = () => {
-  const [{ data, loading, error }, refetch] = useAxios<Product[]>(
-    "/products/mine"
-  );
+  const [{ data, loading, error }, refetch] =
+    useAxios<Product[]>("/products/mine");
 
   if (loading) {
     return <p>Loading...</p>;
   }
 
   if (error) {
-    return <LoadingError onRetry={refetch}/>
+    return <LoadingError onRetry={refetch} />;
   }
 
-  return <Table dataSource={data?.map(d => ({key: d.id, ...d}))} columns={columns} />;
-}
+  return (
+    <div>
+      <div style={{ marginBottom: 16, marginTop: 16 }}>
+        <Button type="primary">
+          <Link to={"/product/create"}>Create new</Link>
+        </Button>
+      </div>
+      <Table
+        dataSource={data?.map((d) => ({ key: d.id, ...d }))}
+        columns={columns}
+      />
+    </div>
+  );
+};
 
 export default MyProductsPage;

@@ -9,6 +9,7 @@ import AuthContext from "../../store/auth-context";
 import SignupPage from "../../pages/auth/SignupPage";
 import MyProductsPage from "../../pages/seller/MyProductsPage";
 import EditProductPage from "../../pages/seller/EditProductPage";
+import CreateProductPage from "../../pages/seller/CreateProductPage";
 
 const LayoutContent: React.FC = () => {
   const authCtx = useContext(AuthContext);
@@ -35,9 +36,10 @@ const LayoutContent: React.FC = () => {
             <>
               <Route path="/products/mine" element={<MyProductsPage />} />
               <Route
-                path="/product/edit/:productId"
+                path="/product/:productId"
                 element={<EditProductPage />}
               />
+              <Route path="/product/create" element={<CreateProductPage />} />
             </>
           )}
 
@@ -47,7 +49,7 @@ const LayoutContent: React.FC = () => {
               <Route path="signup" element={<SignupPage />} />
             </>
           )}
-          
+
           {!isLoggedIn && (
             <Route path="*" element={<Navigate to={"/login"} />} />
           )}
@@ -55,7 +57,7 @@ const LayoutContent: React.FC = () => {
             <Route path="*" element={<Navigate to={"/products"} />} />
           )}
           {isSeller && (
-            <Route path="*" element={<Navigate to={"/products/mine"}/>}/>
+            <Route path="*" element={<Navigate to={"/products/mine"} />} />
           )}
         </Routes>
       </div>

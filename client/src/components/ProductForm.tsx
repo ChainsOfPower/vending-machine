@@ -25,7 +25,7 @@ const ProductForm: React.FC<Props> = (props) => {
         <Form.Item
           label="Product name"
           name="productName"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Name is required" }]}
         >
           <Input />
         </Form.Item>
