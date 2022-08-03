@@ -27,13 +27,19 @@ export class ProductsController {
     return this.productsService.getAll();
   }
 
+  @Get('/mine')
+  @UseGuards(AuthGuard(), SellerGuard)
+  getMine(@GetUser() user: JwtPayload): Promise<ReadProductDto[]> {
+    return this.productsService.getAllFrom(user.id);
+  }
+
   @Get('/:id')
   @UseGuards(AuthGuard())
   get(@Param('id') id: number): Promise<ReadProductDto> {
     return this.productsService.getProduct(id);
   }
 
-  @Post('create')
+  @Post('/create')
   @UseGuards(AuthGuard(), SellerGuard)
   create(
     @Body() createProductDto: CreateProductDto,
@@ -42,7 +48,7 @@ export class ProductsController {
     return this.productsService.createProduct(user.id, createProductDto);
   }
 
-  @Put('update')
+  @Put('/update')
   @UseGuards(AuthGuard(), SellerGuard)
   update(
     @Body() updateProductDto: UpdateProductDto,

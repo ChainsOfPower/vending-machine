@@ -9,6 +9,7 @@ const LayoutHeader: React.FC = () => {
   const authCtx = useContext(AuthContext);
   const isLoggedIn = authCtx.isLoggedIn;
   const isBuyer = authCtx.isBuyer;
+  const isSeller = authCtx.isSeller;
 
   const location = useLocation();
 
@@ -31,7 +32,15 @@ const LayoutHeader: React.FC = () => {
           </>
         )}
 
-        {/* TODO seller routes */}
+        {isSeller && (
+          <>
+            <Menu.Item key="/products/mine">
+              <Link to="/products/mine">
+                <span>My Products</span>
+              </Link>
+            </Menu.Item>
+          </>
+        )}
 
         {!isLoggedIn && (
           <>

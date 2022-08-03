@@ -21,6 +21,16 @@ export class ProductsService {
     );
   }
 
+  async getAllFrom(sellerId: number): Promise<ReadProductDto[]> {
+    const products = await this.productsRepository.findBy({
+      seller: { id: sellerId },
+    });
+
+    return products.map(
+      (p) => new ReadProductDto(p.id, p.amountAvailable, p.cost, p.productName),
+    );
+  }
+
   async createProduct(
     sellerId: number,
     createProductDto: CreateProductDto,
@@ -60,9 +70,13 @@ export class ProductsService {
     updateProductDto: UpdateProductDto,
   ): Promise<ReadProductDto> {
     const product = await this.validateAndGetEntity(
-      sellerId,
       updateProductDto.id,
+      sellerId,
     );
+
+    product.productName = updateProductDto.productName;
+    product.amountAvailable = updateProductDto.amountAvailable;
+    product.cost = updateProductDto.cost;
 
     return {
       id: product.id,

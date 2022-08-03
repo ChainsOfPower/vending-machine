@@ -8,7 +8,7 @@ import {
 } from "antd";
 import useAxios from "axios-hooks";
 import { useEffect, useState } from "react";
-import { User } from "../../api-types/api-types";
+import { Change, User } from "../../api-types/api-types";
 import LoadingError from "../../components/LoadingError";
 
 const DepositCoinsPage: React.FC = () => {
@@ -17,8 +17,13 @@ const DepositCoinsPage: React.FC = () => {
 
   const [{ loading, data, error }, refetch] = useAxios<User>("/auth/profile");
 
-  const [{ loading: isDepositLoading }, executeBuy] = useAxios<User>(
+  const [{ loading: isDepositLoading }, executeDeposit] = useAxios<User>(
     { url: "/vending-machine/deposit", method: "POST" },
+    { manual: true }
+  );
+
+  const [{ loading: isResetLoading }, executeReset] = useAxios<Change>(
+    { url: "/vending-machine/reset", method: "POST" },
     { manual: true }
   );
 
@@ -27,7 +32,7 @@ const DepositCoinsPage: React.FC = () => {
   }, [data]);
 
   const handleDeposit = (values: any) => {
-    executeBuy({ data: values })
+    executeDeposit({ data: values })
       .then((data) => {
         notification.success({
           message: "Successfully deposited coin",
@@ -41,6 +46,29 @@ const DepositCoinsPage: React.FC = () => {
         notification.error({
           message: "Deposit failed",
           description: errorMessage,
+        });
+      });
+  };
+
+  const handleReset = () => {
+    executeReset()
+      .then((response) => {
+        setUser((u) => {
+          if (u === undefined) {
+            return;
+          }
+          return { ...u, deposit: 0 };
+        });
+        const changeText = `Your change is ${response.data.coins.toString()}`;
+        notification.success({
+          message: "Deposit reset successfully",
+          description: changeText,
+        });
+      })
+      .catch((error) => {
+        notification.error({
+          message: "Deposit reset failed",
+          description: error?.response?.data?.message,
         });
       });
   };
@@ -63,7 +91,7 @@ const DepositCoinsPage: React.FC = () => {
         </Descriptions>
       </PageHeader>
 
-      <Form 
+      <Form
         form={form}
         name="deposit"
         labelCol={{ span: 8 }}
@@ -79,12 +107,12 @@ const DepositCoinsPage: React.FC = () => {
             {
               message: "Deposit must be one of [5, 10, 20, 50, 100]",
               validator: (_, value) => {
-                if([5, 10, 20, 50, 100].includes(+value)) {
-                  return Promise.resolve()
+                if ([5, 10, 20, 50, 100].includes(+value)) {
+                  return Promise.resolve();
                 }
                 return Promise.reject();
-              }
-            }
+              },
+            },
           ]}
         >
           <Input type="number" min={5} />
@@ -93,6 +121,12 @@ const DepositCoinsPage: React.FC = () => {
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Button type="primary" htmlType="submit">
             Deposit
+          </Button>
+        </Form.Item>
+
+        <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+          <Button type="ghost" onClick={handleReset} disabled={isResetLoading}>
+            Reset
           </Button>
         </Form.Item>
       </Form>

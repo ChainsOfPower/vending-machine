@@ -1,11 +1,8 @@
-import { Button, Space, Table,  } from "antd";
+import { Space, Table,  } from "antd";
 import useAxios from "axios-hooks";
 import { Link } from "react-router-dom";
+import { Product } from "../../api-types/api-types";
 import LoadingError from "../../components/LoadingError";
-
-interface Product {
-  id: number
-}
 
 const columns = [
   {
@@ -28,7 +25,7 @@ const columns = [
     key: "buy",
     render: (_: any, product: Product) => (
       <Space size="middle"> 
-        <Link to={`/buy-product/${product.id}`}>Buy</Link>
+        <Link to={`/product/buy/${product.id}`}>Buy</Link>
       </Space>
     )
   }
