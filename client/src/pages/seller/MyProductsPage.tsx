@@ -25,7 +25,7 @@ const columns = [
     key: "edit",
     render: (_: any, product: Product) => (
       <Space size="middle">
-        <Link to={`/product/edit/${product.id}`}>Edit</Link>
+        <Link to={`/product/${product.id}`}>Edit</Link>
       </Space>
     ),
   },
