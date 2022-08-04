@@ -20,6 +20,8 @@ export class AuthService {
     private hashingService: HashingService,
     private jwtService: JwtService,
     @InjectRepository(Login) private loginRepository: Repository<Login>,
+    @InjectRepository(RefreshToken)
+    private refreshTokenRepository: Repository<RefreshToken>,
     private dataSource: DataSource,
   ) {}
 
@@ -61,31 +63,56 @@ export class AuthService {
   }
 
   private async createLogin(userId: number): Promise<{ refreshToken: string }> {
-    const { refreshToken, refreshJwt } = await this.generateRefreshToken(
-      userId,
-    );
+    try {
+      // eslint-disable-next-line no-var
+      var queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
 
-    const login = new Login();
-    login.lastRefreshDate = new Date();
-    login.refreshTokens = [refreshToken];
-    this.loginRepository.save(login);
+      const user = new User();
+      user.id = userId;
 
-    return { refreshToken: refreshJwt };
+      const login = new Login();
+      login.user = user;
+      login.lastRefreshDate = new Date();
+      await queryRunner.manager.getRepository(Login).save(login);
+
+      const { refreshToken, refreshJwt } = await this.generateRefreshToken(
+        userId,
+        login.id,
+      );
+
+      queryRunner.manager.getRepository(RefreshToken).save(refreshToken);
+
+      await queryRunner.commitTransaction();
+
+      return { refreshToken: refreshJwt };
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   private async generateRefreshToken(
     userId: number,
+    loginId: number,
   ): Promise<{ refreshToken: RefreshToken; refreshJwt: string }> {
     const refreshJwt = await this.jwtService.sign(
-      { userId },
+      { userId, loginId },
       { expiresIn: '2 days' },
     );
 
     const hashedRefreshToken = await this.hashingService.hash(refreshJwt);
 
+    const login = new Login();
+    login.id = loginId;
+
     const refreshToken = new RefreshToken();
     refreshToken.token = hashedRefreshToken;
     refreshToken.isActive = true;
+    refreshToken.login = login;
 
     const validUntil = new Date();
     validUntil.setDate(validUntil.getDate() + 2);
@@ -98,43 +125,49 @@ export class AuthService {
     refreshJwt: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     try {
+      this.jwtService.verify(refreshJwt);
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+
+    const refreshJwtPayload = this.jwtService.decode(refreshJwt);
+    const userId = refreshJwtPayload['userId'];
+    const loginId = refreshJwtPayload['loginId'];
+
+    const activeRefreshToken = await this.refreshTokenRepository.findOneBy({
+      login: { id: loginId },
+      isActive: true,
+    });
+
+    if (!activeRefreshToken) {
+      throw new UnauthorizedException();
+    }
+
+    const isRequestedActive = await this.hashingService.verify(
+      refreshJwt,
+      activeRefreshToken.token,
+    );
+
+    if (!isRequestedActive || activeRefreshToken.validUntil < new Date()) {
+      await this.loginRepository.delete({ id: loginId });
+      throw new UnauthorizedException();
+    }
+
+    try {
       // eslint-disable-next-line no-var
       var queryRunner = this.dataSource.createQueryRunner();
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
-      const refreshTokenHash = await this.hashingService.hash(refreshJwt);
-
-      const refreshToken = await queryRunner.manager
-        .getRepository(RefreshToken)
-        .findOneBy({ token: refreshTokenHash });
-
-      if (refreshToken == null) {
-        throw new UnauthorizedException();
-      }
-
-      const now = new Date();
-      if (refreshToken.validUntil < now || !refreshToken.isActive) {
-        await queryRunner.manager
-          .getRepository(Login)
-          .delete({ id: refreshToken.login.id });
-
-        queryRunner.commitTransaction();
-
-        return { accessToken: '', refreshToken: '' };
-      }
-
-      refreshToken.isActive = false;
-
-      const userId = this.jwtService.decode(refreshJwt)['userId'];
+      activeRefreshToken.isActive = false;
+      activeRefreshToken.login.lastRefreshDate = new Date();
 
       const { refreshToken: newRefreshToken, refreshJwt: newRefreshJwt } =
-        await this.generateRefreshToken(userId);
+        await this.generateRefreshToken(userId, loginId);
 
-      refreshToken.login.refreshTokens.push(newRefreshToken);
-      refreshToken.login.lastRefreshDate = new Date();
-
-      await queryRunner.manager.getRepository(RefreshToken).save(refreshToken);
+      const refreshTokenRepo = queryRunner.manager.getRepository(RefreshToken);
+      await refreshTokenRepo.save(activeRefreshToken);
+      await refreshTokenRepo.save(newRefreshToken);
 
       const user = await queryRunner.manager
         .getRepository(User)
@@ -152,8 +185,55 @@ export class AuthService {
       await queryRunner.rollbackTransaction();
       throw err;
     } finally {
-      await queryRunner.release();
+      queryRunner.release();
     }
+
+    //TODO: at this point, request is valid and active refresh token
+    //1. generate new refresh token
+    //2. update login entity + update active token to be inactive + create new refresh token
+
+    // try {
+    //   // eslint-disable-next-line no-var
+    //   var queryRunner = this.dataSource.createQueryRunner();
+    //   await queryRunner.connect();
+    //   await queryRunner.startTransaction();
+    //   const refreshTokenHash = await this.hashingService.hash(refreshJwt);
+    //   const refreshToken = await queryRunner.manager
+    //     .getRepository(RefreshToken)
+    //     .findOneBy({ token: refreshTokenHash });
+    //   if (refreshToken == null) {
+    //     throw new UnauthorizedException();
+    //   }
+    //   const now = new Date();
+    //   if (refreshToken.validUntil < now || !refreshToken.isActive) {
+    //     await queryRunner.manager
+    //       .getRepository(Login)
+    //       .delete({ id: refreshToken.login.id });
+    //     queryRunner.commitTransaction();
+    //     return { accessToken: '', refreshToken: '' };
+    //   }
+    //   refreshToken.isActive = false;
+    //   const userId = this.jwtService.decode(refreshJwt)['userId'];
+    //   const { refreshToken: newRefreshToken, refreshJwt: newRefreshJwt } =
+    //     await this.generateRefreshToken(userId);
+    //   refreshToken.login.refreshTokens.push(newRefreshToken);
+    //   refreshToken.login.lastRefreshDate = new Date();
+    //   await queryRunner.manager.getRepository(RefreshToken).save(refreshToken);
+    //   const user = await queryRunner.manager
+    //     .getRepository(User)
+    //     .findOneBy({ id: userId });
+    //   await queryRunner.commitTransaction();
+    //   const { accessToken } = await this.signToken({
+    //     id: user.id,
+    //     role: user.role,
+    //   });
+    //   return { accessToken, refreshToken: newRefreshJwt };
+    // } catch (err) {
+    //   await queryRunner.rollbackTransaction();
+    //   throw err;
+    // } finally {
+    //   await queryRunner.release();
+    // }
   }
 
   async updateCredentials(
