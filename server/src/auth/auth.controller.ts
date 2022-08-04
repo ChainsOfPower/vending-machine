@@ -49,6 +49,17 @@ export class AuthController {
     return this.authService.refreshTokens(refreshToken);
   }
 
+  @Post('/revoke')
+  revoke(@Body() { refreshToken }: { refreshToken: string }): Promise<void> {
+    return this.authService.revokeToken(refreshToken);
+  }
+
+  @Post('/revoke-all')
+  @UseGuards(AuthGuard())
+  revokeAll(@GetUser() user: JwtPayload): Promise<void> {
+    return this.authService.revokeAllForUser(user.id);
+  }
+
   @Patch('/credentials')
   @UseGuards(AuthGuard())
   updateCredentials(

@@ -95,6 +95,21 @@ export class AuthService {
     }
   }
 
+  async revokeToken(refreshToken: string): Promise<void> {
+    const token = await this.refreshTokenRepository.findOneBy({
+      token: refreshToken,
+    });
+    await this.loginRepository.remove(token.login);
+  }
+
+  async revokeAllForUser(userId: number) {
+    await this.loginRepository
+      .createQueryBuilder('login')
+      .delete()
+      .where('login.userId = :userId', { userId })
+      .execute();
+  }
+
   async refreshTokens(
     refreshJwt: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
@@ -157,6 +172,20 @@ export class AuthService {
     }
   }
 
+  async updateCredentials(
+    loggedInUserId: number,
+    credentials: UpdateUserCredentialsDto,
+  ): Promise<ReadUserDto> {
+    return await this.usersService.updateCredentials(
+      loggedInUserId,
+      credentials,
+    );
+  }
+
+  async deleteUser(loggedInUserId: number): Promise<void> {
+    return await this.usersService.delete(loggedInUserId);
+  }
+
   private async generateRefreshToken(
     userId: number,
     loginId: number,
@@ -179,19 +208,5 @@ export class AuthService {
 
     refreshToken.validUntil = validUntil;
     return { refreshToken, refreshJwt };
-  }
-
-  async updateCredentials(
-    loggedInUserId: number,
-    credentials: UpdateUserCredentialsDto,
-  ): Promise<ReadUserDto> {
-    return await this.usersService.updateCredentials(
-      loggedInUserId,
-      credentials,
-    );
-  }
-
-  async deleteUser(loggedInUserId: number): Promise<void> {
-    return await this.usersService.delete(loggedInUserId);
   }
 }
