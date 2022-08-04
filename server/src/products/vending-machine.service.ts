@@ -3,10 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ReadUserDto } from 'src/users/dto/read-user.dto';
-import { User } from 'src/users/user.entity';
-import { UsersService } from 'src/users/users.service';
 import { DataSource, QueryRunner } from 'typeorm';
+import { ReadUserDto } from '../users/dto/read-user.dto';
+import { User } from '../users/user.entity';
+import { UsersService } from '../users/users.service';
 import { BuyProductResponseDto } from './dto/buy-product-response.dto';
 import { BuyProductDto } from './dto/buy-product.dto';
 import { ChangeDto } from './dto/change.dto';

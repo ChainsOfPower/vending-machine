@@ -1,9 +1,9 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { BuyerGuard } from 'src/auth/buyer.guard';
-import { GetUser } from 'src/auth/get-user.decorator';
-import { JwtPayload } from 'src/auth/jwt-payload.interface';
-import { ReadUserDto } from 'src/users/dto/read-user.dto';
+import { BuyerGuard } from '../auth/buyer.guard';
+import { GetUser } from '../auth/get-user.decorator';
+import { JwtPayload } from '../auth/jwt-payload.interface';
+import { ReadUserDto } from '../users/dto/read-user.dto';
 import { BuyProductResponseDto } from './dto/buy-product-response.dto';
 import { BuyProductDto } from './dto/buy-product.dto';
 import { ChangeDto } from './dto/change.dto';

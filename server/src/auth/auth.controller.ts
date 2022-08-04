@@ -8,10 +8,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { ReadUserDto } from 'src/users/dto/read-user.dto';
-import { UpdateUserCredentialsDto } from 'src/users/dto/update-user-credentials.dto';
-import { UsersService } from 'src/users/users.service';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { ReadUserDto } from '../users/dto/read-user.dto';
+import { UpdateUserCredentialsDto } from '../users/dto/update-user-credentials.dto';
+import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { AuthCredentialsDto } from './dto/auth.credentials.dto';
 import { GetUser } from './get-user.decorator';

@@ -9,9 +9,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from 'src/auth/get-user.decorator';
-import { JwtPayload } from 'src/auth/jwt-payload.interface';
-import { SellerGuard } from 'src/auth/seller.guard';
+import { GetUser } from '../auth/get-user.decorator';
+import { JwtPayload } from '../auth/jwt-payload.interface';
+import { SellerGuard } from '../auth/seller.guard';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ReadProductDto } from './dto/read-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
