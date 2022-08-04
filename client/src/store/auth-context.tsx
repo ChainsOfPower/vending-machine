@@ -10,7 +10,7 @@ export type JwtPayload = {
 export type AuthContextType = {
   jwtPayload: JwtPayload | null;
   isLoggedIn: boolean;
-  logIn: (token: string) => void;
+  logIn: (token: string, refreshToken: string) => void;
   logOut: () => void;
   isBuyer: boolean;
   isSeller: boolean;
@@ -19,7 +19,7 @@ export type AuthContextType = {
 const AuthContext = React.createContext<AuthContextType>({
   jwtPayload: null,
   isLoggedIn: false,
-  logIn: (token: string) => {},
+  logIn: (token: string, refreshToken: string) => {},
   logOut: () => {},
   isBuyer: false,
   isSeller: false,
@@ -38,9 +38,10 @@ export const AuthContextProvider: React.FC<Props> = ({ children }) => {
 
   const [jwtPayload, setJwtPayload] = useState<JwtPayload | null>(initialJwtPayload);
 
-  const logInHanlder = (token: string) => {
+  const logInHanlder = (token: string, refreshToken: string) => {
     setJwtPayload(jwt(token));
     localStorage.setItem("token", token);
+    localStorage.setItem("refreshToken", refreshToken);
   };
 
   const logOutHandler = () => {

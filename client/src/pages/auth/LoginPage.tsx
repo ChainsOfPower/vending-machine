@@ -8,7 +8,7 @@ import AuthContext from "../../store/auth-context";
 const LoginPage: React.FC = () => {
   const authCtx = useContext(AuthContext);
 
-  const [{ loading }, execute] = useAxios<{ accessToken: string }>(
+  const [{ loading }, execute] = useAxios<{ accessToken: string, refreshToken: string }>(
     { url: "/auth/signin", method: "POST" },
     { manual: true }
   );
@@ -16,7 +16,7 @@ const LoginPage: React.FC = () => {
   const handleLogin = (values: AuthCredentials) => {
     return execute({ data: values })
       .then((response) => {
-        authCtx.logIn(response.data.accessToken);
+        authCtx.logIn(response.data.accessToken, response.data.refreshToken);
       })
       .catch((error) => {
         const errorMessage = error?.response?.data?.message;
