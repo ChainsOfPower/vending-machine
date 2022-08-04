@@ -40,7 +40,7 @@ export const AuthContextProvider: React.FC<Props> = ({ children }) => {
     initialJwtPayload
   );
 
-  const [{ loading: revokeLoading }, executeRevoke] = useAxios(
+  const [, executeRevoke] = useAxios(
     { url: "/auth/revoke", method: "POST" },
     { manual: true }
   );
@@ -54,7 +54,7 @@ export const AuthContextProvider: React.FC<Props> = ({ children }) => {
   const logOutHandler = () => {
     const refreshToken = localStorage.getItem("refreshToken");
     executeRevoke({ data: { refreshToken } })
-      .then((response) => {
+      .then(() => {
         setJwtPayload(null);
         localStorage.removeItem("token");
         localStorage.removeItem("refreshToken");
