@@ -42,6 +42,13 @@ export class AuthController {
     return this.authService.signIn(authCredentials);
   }
 
+  @Post('/refresh')
+  refresh(
+    @Body() { refreshToken }: { refreshToken: string },
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    return this.authService.refreshTokens(refreshToken);
+  }
+
   @Patch('/credentials')
   @UseGuards(AuthGuard())
   updateCredentials(

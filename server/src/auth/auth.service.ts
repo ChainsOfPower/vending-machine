@@ -119,7 +119,9 @@ export class AuthService {
           .getRepository(Login)
           .delete({ id: refreshToken.login.id });
 
-        throw new UnauthorizedException();
+        queryRunner.commitTransaction();
+
+        return { accessToken: '', refreshToken: '' };
       }
 
       refreshToken.isActive = false;
