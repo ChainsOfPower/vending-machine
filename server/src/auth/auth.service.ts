@@ -37,10 +37,14 @@ export class AuthService {
         role: user.role,
       };
 
-      const accessToken = await this.jwtService.sign(payload);
-      return { accessToken };
+      return await this.signToken(payload);
     }
     throw new UnauthorizedException('Incorrect username or password');
+  }
+
+  async signToken(payload: JwtPayload) {
+    const accessToken = await this.jwtService.sign(payload);
+    return { accessToken };
   }
 
   async updateCredentials(
