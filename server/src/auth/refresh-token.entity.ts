@@ -15,6 +15,9 @@ export class RefreshToken {
   @Column({ nullable: false })
   isActive: boolean;
 
-  @ManyToOne(() => Login, (login) => login.refreshTokens, { eager: true })
+  @ManyToOne(() => Login, (login) => login.refreshTokens, {
+    eager: true,
+    cascade: ['update'],
+  })
   login: Login;
 }

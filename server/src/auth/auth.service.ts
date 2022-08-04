@@ -95,32 +95,6 @@ export class AuthService {
     }
   }
 
-  private async generateRefreshToken(
-    userId: number,
-    loginId: number,
-  ): Promise<{ refreshToken: RefreshToken; refreshJwt: string }> {
-    const refreshJwt = await this.jwtService.sign(
-      { userId, loginId },
-      { expiresIn: '2 days' },
-    );
-
-    const hashedRefreshToken = await this.hashingService.hash(refreshJwt);
-
-    const login = new Login();
-    login.id = loginId;
-
-    const refreshToken = new RefreshToken();
-    refreshToken.token = hashedRefreshToken;
-    refreshToken.isActive = true;
-    refreshToken.login = login;
-
-    const validUntil = new Date();
-    validUntil.setDate(validUntil.getDate() + 2);
-
-    refreshToken.validUntil = validUntil;
-    return { refreshToken, refreshJwt };
-  }
-
   async refreshTokens(
     refreshJwt: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
@@ -130,25 +104,19 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
+    const tokenFromDb = await this.refreshTokenRepository.findOneBy({
+      token: refreshJwt,
+    });
+
+    if (tokenFromDb == null) {
+      throw new UnauthorizedException();
+    }
+
     const refreshJwtPayload = this.jwtService.decode(refreshJwt);
     const userId = refreshJwtPayload['userId'];
     const loginId = refreshJwtPayload['loginId'];
 
-    const activeRefreshToken = await this.refreshTokenRepository.findOneBy({
-      login: { id: loginId },
-      isActive: true,
-    });
-
-    if (!activeRefreshToken) {
-      throw new UnauthorizedException();
-    }
-
-    const isRequestedActive = await this.hashingService.verify(
-      refreshJwt,
-      activeRefreshToken.token,
-    );
-
-    if (!isRequestedActive || activeRefreshToken.validUntil < new Date()) {
+    if (!tokenFromDb.isActive || tokenFromDb.validUntil < new Date()) {
       await this.loginRepository.delete({ id: loginId });
       throw new UnauthorizedException();
     }
@@ -159,14 +127,14 @@ export class AuthService {
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
-      activeRefreshToken.isActive = false;
-      activeRefreshToken.login.lastRefreshDate = new Date();
+      tokenFromDb.isActive = false;
+      tokenFromDb.login.lastRefreshDate = new Date();
 
       const { refreshToken: newRefreshToken, refreshJwt: newRefreshJwt } =
         await this.generateRefreshToken(userId, loginId);
 
       const refreshTokenRepo = queryRunner.manager.getRepository(RefreshToken);
-      await refreshTokenRepo.save(activeRefreshToken);
+      await refreshTokenRepo.save(tokenFromDb);
       await refreshTokenRepo.save(newRefreshToken);
 
       const user = await queryRunner.manager
@@ -187,6 +155,30 @@ export class AuthService {
     } finally {
       queryRunner.release();
     }
+  }
+
+  private async generateRefreshToken(
+    userId: number,
+    loginId: number,
+  ): Promise<{ refreshToken: RefreshToken; refreshJwt: string }> {
+    const refreshJwt = await this.jwtService.sign(
+      { userId, loginId },
+      { expiresIn: '2 days' },
+    );
+
+    const login = new Login();
+    login.id = loginId;
+
+    const refreshToken = new RefreshToken();
+    refreshToken.token = refreshJwt;
+    refreshToken.isActive = true;
+    refreshToken.login = login;
+
+    const validUntil = new Date();
+    validUntil.setDate(validUntil.getDate() + 2);
+
+    refreshToken.validUntil = validUntil;
+    return { refreshToken, refreshJwt };
   }
 
   async updateCredentials(
