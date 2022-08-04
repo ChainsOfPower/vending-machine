@@ -15,8 +15,13 @@ describe('VendingMachineController (e2e)', () => {
   let sellerId: number;
   let cheapProductId: number;
   let expensiveProductId: number;
-  const validCoinDeposit = { amount: 5 };
-  const invalidCoinDeposit = { amount: 3 };
+  const validDepositPayload = { amount: 5 };
+  const invalidDepositPayload = { amount: 3 };
+  const expensivePurchasePayload = () => ({
+    productId: expensiveProductId,
+    amount: 1,
+  });
+  const cheapPurchasePayload = () => ({ productId: cheapProductId, amount: 1 });
 
   beforeAll(async () => {
     app = await initializeTestApp();
@@ -66,10 +71,10 @@ describe('VendingMachineController (e2e)', () => {
     expensiveProductId = expensiveProduct.id;
   });
 
-  it('Deposit unaotharized should fail', async () => {
+  it('Deposit without auth should fail', async () => {
     const response = await request(app.getHttpServer())
       .post('/vending-machine/deposit')
-      .send(validCoinDeposit);
+      .send(validDepositPayload);
 
     expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
   });
@@ -78,7 +83,7 @@ describe('VendingMachineController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/vending-machine/deposit')
       .auth(sellerToken.accessToken, { type: 'bearer' })
-      .send(validCoinDeposit);
+      .send(validDepositPayload);
 
     expect(response.status).toBe(HttpStatus.FORBIDDEN);
   });
@@ -87,7 +92,7 @@ describe('VendingMachineController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/vending-machine/deposit')
       .auth(buyerToken.accessToken, { type: 'bearer' })
-      .send(invalidCoinDeposit);
+      .send(invalidDepositPayload);
 
     expect(response.status).toBe(HttpStatus.BAD_REQUEST);
   });
@@ -96,10 +101,45 @@ describe('VendingMachineController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/vending-machine/deposit')
       .auth(buyerToken.accessToken, { type: 'bearer' })
-      .send(validCoinDeposit);
+      .send(validDepositPayload);
 
     expect(response.status).toBe(HttpStatus.CREATED);
     expect(response.body.deposit).toBe(205);
+  });
+
+  it('Buy without auth should fail', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/vending-machine/buy')
+      .send(cheapPurchasePayload());
+
+    expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
+  it('Seller should not be able to buy', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/vending-machine/buy')
+      .auth(sellerToken.accessToken, { type: 'bearer' })
+      .send(cheapPurchasePayload());
+
+    expect(response.status).toBe(HttpStatus.FORBIDDEN);
+  });
+
+  it('Buyer should not be able to buy expensive product', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/vending-machine/buy')
+      .auth(buyerToken.accessToken, { type: 'bearer' })
+      .send(expensivePurchasePayload());
+
+    expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+  });
+
+  it('Buyer should be able to buy cheap product', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/vending-machine/buy')
+      .auth(buyerToken.accessToken, { type: 'bearer' })
+      .send(cheapPurchasePayload());
+
+    expect(response.status).toBe(HttpStatus.CREATED);
   });
 
   afterAll(async () => {
