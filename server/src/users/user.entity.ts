@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   VersionColumn,
 } from 'typeorm';
+import { Login } from '../auth/login.entity';
 import { Product } from '../products/product.entity';
 import { UserRole } from './user-role.enum';
 
@@ -27,6 +28,9 @@ export class User {
 
   @OneToMany(() => Product, (product) => product.seller)
   products: Product[];
+
+  @OneToMany(() => Login, (login) => login.user)
+  logins: Login[];
 
   @VersionColumn()
   version: number;

@@ -1,5 +1,6 @@
 import Axios from "axios";
 import { configure } from "axios-hooks";
+import { config } from "process";
 
 const configureAxios = () => {
   const axiosInstance = Axios.create({
@@ -25,7 +26,7 @@ const configureAxios = () => {
     async (error) => {
       //const config = error.config;
   
-      if (error.response.status === 401) {
+      if (error.config.url !== '/auth/signin' && error.response.status === 401) {
         //TODO: refresh token logic with config.retry flag
         localStorage.setItem("token", "");
         window.location.reload();

@@ -38,7 +38,7 @@ export class AuthController {
   @Post('/signin')
   signIn(
     @Body() authCredentials: AuthCredentialsDto,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.authService.signIn(authCredentials);
   }
 
@@ -56,6 +56,4 @@ export class AuthController {
   delete(@GetUser() user: JwtPayload) {
     return this.authService.deleteUser(user.id);
   }
-
-  //TODO: Login entity and logout option
 }
