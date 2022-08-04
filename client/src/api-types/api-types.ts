@@ -32,3 +32,6 @@ export interface Change {
   coins: number[];
 }
 
+export interface ActiveSessions {
+  activeSessionsCount: number;
+};

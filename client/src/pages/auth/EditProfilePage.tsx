@@ -1,8 +1,14 @@
-import { notification, PageHeader } from "antd";
+import { Button, notification, PageHeader } from "antd";
 import useAxios from "axios-hooks";
-import { AuthCredentials, User } from "../../api-types/api-types";
+import { useContext } from "react";
+import {
+  ActiveSessions,
+  AuthCredentials,
+  User,
+} from "../../api-types/api-types";
 import CredentialsForm from "../../components/CredentialsForm";
 import LoadingError from "../../components/LoadingError";
+import AuthContext from "../../store/auth-context";
 
 const EditProfilePage: React.FC = () => {
   const [
@@ -10,10 +16,21 @@ const EditProfilePage: React.FC = () => {
     refetchProfile,
   ] = useAxios<User>("/auth/profile");
 
+  const [
+    {
+      loading: isLoginSessionsLoading,
+      data: loginSessionsData,
+      error: loginSessionError,
+    },
+    refetchLoginSessions,
+  ] = useAxios<ActiveSessions>({ url: "/auth/active-sessions" });
+
   const [{ loading: isUpdateLoading }, executeUpdate] = useAxios<User>(
     { url: "/auth/credentials", method: "PATCH" },
     { manual: true }
   );
+
+  const authCtx = useContext(AuthContext);
 
   const handleUpdate = (values: AuthCredentials) => {
     return executeUpdate({ data: values })
@@ -28,7 +45,7 @@ const EditProfilePage: React.FC = () => {
       });
   };
 
-  if (isProfileLoading) {
+  if (isProfileLoading || isLoginSessionsLoading) {
     return <span>Loading...</span>;
   }
 
@@ -36,9 +53,29 @@ const EditProfilePage: React.FC = () => {
     return <LoadingError onRetry={refetchProfile} />;
   }
 
+  if (loginSessionError) {
+    return <LoadingError onRetry={refetchLoginSessions} />;
+  }
+
   return (
     <>
-      <PageHeader  className="site-page-header" title="Update credentials" />
+      <PageHeader
+        className="site-page-header"
+        title="Update credentials"
+        footer={
+          <div>
+            <div>
+              You have {loginSessionsData?.activeSessionsCount} active sessions.
+            </div>
+            <Button
+              type="primary"
+              onClick={authCtx.logOutAllSessions}
+            >
+              Logout from all
+            </Button>
+          </div>
+        }
+      />
       <CredentialsForm
         disabled={isUpdateLoading}
         onFinish={handleUpdate}

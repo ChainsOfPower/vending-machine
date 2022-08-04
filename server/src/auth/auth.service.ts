@@ -8,7 +8,8 @@ import { UpdateUserCredentialsDto } from '../users/dto/update-user-credentials.d
 import { HashingService } from '../users/hashing.service';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
-import { AuthCredentialsDto } from './dto/auth.credentials.dto';
+import { ActiveSessionsDto } from './dto/active-session.dto';
+import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { JwtPayload } from './jwt-payload.interface';
 import { Login } from './login.entity';
 import { RefreshToken } from './refresh-token.entity';
@@ -27,6 +28,12 @@ export class AuthService {
 
   async signUp(createUserDto: CreateUserDto): Promise<ReadUserDto> {
     return await this.usersService.create(createUserDto);
+  }
+
+  async getActiveSessions(userId: number): Promise<ActiveSessionsDto> {
+    const count = await this.loginRepository.countBy({ user: { id: userId } });
+
+    return new ActiveSessionsDto(count);
   }
 
   async signIn(
@@ -102,12 +109,8 @@ export class AuthService {
     await this.loginRepository.delete({ id: token.login.id });
   }
 
-  async revokeAllForUser(userId: number) {
-    await this.loginRepository
-      .createQueryBuilder('login')
-      .delete()
-      .where('login.userId = :userId', { userId })
-      .execute();
+  async revokeAllForUser(userId: number): Promise<void> {
+    await this.loginRepository.delete({ user: { id: userId } });
   }
 
   async refreshTokens(

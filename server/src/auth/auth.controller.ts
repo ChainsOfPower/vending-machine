@@ -13,7 +13,8 @@ import { ReadUserDto } from '../users/dto/read-user.dto';
 import { UpdateUserCredentialsDto } from '../users/dto/update-user-credentials.dto';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
-import { AuthCredentialsDto } from './dto/auth.credentials.dto';
+import { ActiveSessionsDto } from './dto/active-session.dto';
+import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { GetUser } from './get-user.decorator';
 import { JwtPayload } from './jwt-payload.interface';
 
@@ -26,8 +27,14 @@ export class AuthController {
 
   @Get('/profile')
   @UseGuards(AuthGuard())
-  getProfile(@GetUser() user: JwtPayload) {
+  getProfile(@GetUser() user: JwtPayload): Promise<ReadUserDto> {
     return this.usersService.getById(user.id);
+  }
+
+  @Get('/active-sessions')
+  @UseGuards(AuthGuard())
+  getActiveSessions(@GetUser() user: JwtPayload): Promise<ActiveSessionsDto> {
+    return this.authService.getActiveSessions(user.id);
   }
 
   @Post('/signup')

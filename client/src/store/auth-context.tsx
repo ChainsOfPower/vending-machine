@@ -14,6 +14,7 @@ export type AuthContextType = {
   isLoggedIn: boolean;
   logIn: (token: string, refreshToken: string) => void;
   logOut: () => void;
+  logOutAllSessions: () => void;
   isBuyer: boolean;
   isSeller: boolean;
 };
@@ -23,6 +24,7 @@ const AuthContext = React.createContext<AuthContextType>({
   isLoggedIn: false,
   logIn: (token: string, refreshToken: string) => {},
   logOut: () => {},
+  logOutAllSessions: () => {},
   isBuyer: false,
   isSeller: false,
 });
@@ -42,6 +44,11 @@ export const AuthContextProvider: React.FC<Props> = ({ children }) => {
 
   const [, executeRevoke] = useAxios(
     { url: "/auth/revoke", method: "POST" },
+    { manual: true }
+  );
+
+  const [, executeRevokeAll] = useAxios(
+    { url: "auth/revoke-all", method: "POST" },
     { manual: true }
   );
 
@@ -67,6 +74,21 @@ export const AuthContextProvider: React.FC<Props> = ({ children }) => {
       });
   };
 
+  const logOutAllSessionsHandler = () => {
+    executeRevokeAll()
+      .then(() => {
+        setJwtPayload(null);
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+      })
+      .catch((error) => {
+        notification.error({
+          message: "Error logging out from all sessions",
+          description: error?.response?.data?.message,
+        });
+      });
+  };
+
   const isUserLoggedIn = !!jwtPayload;
   const isBuyer = jwtPayload?.role === UserRole.BUYER;
   const isSeller = jwtPayload?.role === UserRole.SELLER;
@@ -76,6 +98,7 @@ export const AuthContextProvider: React.FC<Props> = ({ children }) => {
     isLoggedIn: isUserLoggedIn,
     logIn: logInHanlder,
     logOut: logOutHandler,
+    logOutAllSessions: logOutAllSessionsHandler,
     isBuyer,
     isSeller,
   };

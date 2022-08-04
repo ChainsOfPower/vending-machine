@@ -35,7 +35,6 @@ describe('VendingMachineController (e2e)', () => {
     buyer.role = UserRole.BUYER;
     buyer.deposit = 200;
     await connection.getRepository(User).save(buyer);
-    console.log('OVO JE PERSISTED BUYER', buyer);
     buyerId = buyer.id;
     buyerToken = await authService.signToken({
       id: buyer.id,
