@@ -28,11 +28,9 @@ const configureAxios = () => {
 
       if (
         error.config.url !== "/auth/signin" &&
-        error.response.status === 401 &&
-        !config._retry
+        error.config.url !== "/auth/refresh" &&
+        error.response.status === 401
       ) {
-        config._retry = true;
-
         const refreshToken = localStorage.getItem("refreshToken");
 
         if (!refreshToken) {
@@ -51,9 +49,7 @@ const configureAxios = () => {
           });
 
         return axios(config);
-      }
-
-      if (error.response.status === 401 && config._retry) {
+      } else if (error.response.status === 401) {
         localStorage.setItem("token", "");
         localStorage.setItem("refreshToken", "");
         window.location.reload();

@@ -18,6 +18,7 @@ export class RefreshToken {
   @ManyToOne(() => Login, (login) => login.refreshTokens, {
     eager: true,
     cascade: ['update'],
+    onDelete: 'CASCADE',
   })
   login: Login;
 }

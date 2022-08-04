@@ -99,7 +99,7 @@ export class AuthService {
     const token = await this.refreshTokenRepository.findOneBy({
       token: refreshToken,
     });
-    await this.loginRepository.remove(token.login);
+    await this.loginRepository.delete({ id: token.login.id });
   }
 
   async revokeAllForUser(userId: number) {

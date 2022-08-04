@@ -32,8 +32,6 @@ export class Login {
   @ManyToOne(() => User, (user) => user.logins)
   user: User;
 
-  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.login, {
-    cascade: true,
-  })
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.login)
   refreshTokens: RefreshToken[];
 }

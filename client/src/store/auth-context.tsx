@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { UserRole } from "../api-types/api-types";
 import jwt from "jwt-decode";
+import useAxios from "axios-hooks";
+import { notification } from "antd";
 
 export type JwtPayload = {
   id: number;
   role: UserRole;
-}
+};
 
 export type AuthContextType = {
   jwtPayload: JwtPayload | null;
@@ -32,11 +34,16 @@ interface Props {
 export const AuthContextProvider: React.FC<Props> = ({ children }) => {
   const initialToken = localStorage.getItem("token");
 
-  const initialJwtPayload = initialToken 
-    ? jwt<JwtPayload>(initialToken) 
-    : null;
+  const initialJwtPayload = initialToken ? jwt<JwtPayload>(initialToken) : null;
 
-  const [jwtPayload, setJwtPayload] = useState<JwtPayload | null>(initialJwtPayload);
+  const [jwtPayload, setJwtPayload] = useState<JwtPayload | null>(
+    initialJwtPayload
+  );
+
+  const [{ loading: revokeLoading }, executeRevoke] = useAxios(
+    { url: "/auth/revoke", method: "POST" },
+    { manual: true }
+  );
 
   const logInHanlder = (token: string, refreshToken: string) => {
     setJwtPayload(jwt(token));
@@ -45,8 +52,19 @@ export const AuthContextProvider: React.FC<Props> = ({ children }) => {
   };
 
   const logOutHandler = () => {
-    setJwtPayload(null);
-    localStorage.removeItem("token");
+    const refreshToken = localStorage.getItem("refreshToken");
+    executeRevoke({ data: { refreshToken } })
+      .then((response) => {
+        setJwtPayload(null);
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+      })
+      .catch((error) => {
+        notification.error({
+          message: "Error logging out",
+          description: error?.response?.data?.message,
+        });
+      });
   };
 
   const isUserLoggedIn = !!jwtPayload;
@@ -59,7 +77,7 @@ export const AuthContextProvider: React.FC<Props> = ({ children }) => {
     logIn: logInHanlder,
     logOut: logOutHandler,
     isBuyer,
-    isSeller
+    isSeller,
   };
 
   return (
