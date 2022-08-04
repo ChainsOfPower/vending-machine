@@ -187,53 +187,6 @@ export class AuthService {
     } finally {
       queryRunner.release();
     }
-
-    //TODO: at this point, request is valid and active refresh token
-    //1. generate new refresh token
-    //2. update login entity + update active token to be inactive + create new refresh token
-
-    // try {
-    //   // eslint-disable-next-line no-var
-    //   var queryRunner = this.dataSource.createQueryRunner();
-    //   await queryRunner.connect();
-    //   await queryRunner.startTransaction();
-    //   const refreshTokenHash = await this.hashingService.hash(refreshJwt);
-    //   const refreshToken = await queryRunner.manager
-    //     .getRepository(RefreshToken)
-    //     .findOneBy({ token: refreshTokenHash });
-    //   if (refreshToken == null) {
-    //     throw new UnauthorizedException();
-    //   }
-    //   const now = new Date();
-    //   if (refreshToken.validUntil < now || !refreshToken.isActive) {
-    //     await queryRunner.manager
-    //       .getRepository(Login)
-    //       .delete({ id: refreshToken.login.id });
-    //     queryRunner.commitTransaction();
-    //     return { accessToken: '', refreshToken: '' };
-    //   }
-    //   refreshToken.isActive = false;
-    //   const userId = this.jwtService.decode(refreshJwt)['userId'];
-    //   const { refreshToken: newRefreshToken, refreshJwt: newRefreshJwt } =
-    //     await this.generateRefreshToken(userId);
-    //   refreshToken.login.refreshTokens.push(newRefreshToken);
-    //   refreshToken.login.lastRefreshDate = new Date();
-    //   await queryRunner.manager.getRepository(RefreshToken).save(refreshToken);
-    //   const user = await queryRunner.manager
-    //     .getRepository(User)
-    //     .findOneBy({ id: userId });
-    //   await queryRunner.commitTransaction();
-    //   const { accessToken } = await this.signToken({
-    //     id: user.id,
-    //     role: user.role,
-    //   });
-    //   return { accessToken, refreshToken: newRefreshJwt };
-    // } catch (err) {
-    //   await queryRunner.rollbackTransaction();
-    //   throw err;
-    // } finally {
-    //   await queryRunner.release();
-    // }
   }
 
   async updateCredentials(
