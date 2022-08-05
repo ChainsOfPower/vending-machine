@@ -2,9 +2,9 @@ Vending machine app written in nestJS and React with TS
 
 ## Running the app
 ```
-To run server part in dev mode, run nvm use, cd /server, yarn start:dev
+To run server part in dev mode, run nvm use, cd /server, yarn install, yarn start:dev
 
-To run client part in dev mode, run nvm use, cd /client, yarn start
+To run client part in dev mode, run nvm use, cd /client, yarn install, yarn start
 ```
 
 ## Database
