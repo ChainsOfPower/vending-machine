@@ -49,7 +49,10 @@ const configureAxios = () => {
           });
 
         return axios(config);
-      } else if (error.response.status === 401) {
+      } else if (
+        error.response.status === 401 &&
+        error.config.url !== "/auth/signin"
+      ) {
         localStorage.setItem("token", "");
         localStorage.setItem("refreshToken", "");
         window.location.reload();
