@@ -16,5 +16,14 @@ DB_PORT=5432
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 DB_DATABASE=vending-machine
+
+To run the tests, run yarn test:e2e. To do that, you need to have empty db ready as follows:
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_DATABASE=vending-machine-test
+JWT_SECRET=TopSecret
 ```
 
